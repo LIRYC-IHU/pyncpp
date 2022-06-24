@@ -1,0 +1,59 @@
+# Copyright (c) 2022 IHU Liryc, Université de Bordeaux, Inria.
+# License: BSD-3-Clause
+
+@PACKAGE_INIT@
+
+cmake_policy(SET CMP0057 NEW) # IN_LIST operator
+
+if(NOT Python_FIND_COMPONENTS)
+    set(Python_FIND_COMPONENTS Interpreter)
+endif()
+
+set_and_check(_source_dir "@PACKAGE_PYTHON_SOURCE_DIR@")
+set_and_check(_binary_dir "@PACKAGE_PYTHON_BINARY_DIR@")
+
+if(Interpreter IN_LIST Python_FIND_COMPONENTS)
+    if(APPLE)
+        set_and_check(Python_EXECUTABLE "${_binary_dir}/python.exe")
+    else()
+        set_and_check(Python_EXECUTABLE "${_binary_dir}/python")
+    endif()
+
+    set_and_check(Python_STDLIB "${_source_dir}/Lib")
+    file(READ "${_binary_dir}/pybuilddir.txt" _pybuilddir)
+    set_and_check(Python_STDARCH "${_binary_dir}/${_pybuilddir}")
+    set(Python_SITELIB "${_binary_dir}/lib/python@PYNCPP_REQUIRED_PYTHON_VERSION_MAJOR@.@PYNCPP_REQUIRED_PYTHON_VERSION_MINOR@/site-packages")
+    set(Python_SITEARCH "${_binary_dir}/lib/python@PYNCPP_REQUIRED_PYTHON_VERSION_MAJOR@.@PYNCPP_REQUIRED_PYTHON_VERSION_MINOR@/site-packages")
+
+    if(EXISTS "${Python_STDLIB}/os.py")
+        set(Python_Interpreter_FOUND TRUE)
+    else()
+        set(Python_Interpreter_FOUND FALSE)
+    endif()
+endif()
+
+if(Development IN_LIST Python_FIND_COMPONENTS)
+    set_and_check(Python_LIBRARY_DIRS "${_binary_dir}")
+    set_and_check(Python_RUNTIME_LIBRARY_DIRS "${_binary_dir}")
+    set_and_check(_include_dir_0 "${_source_dir}/Include")
+    set_and_check(_include_dir_1 "${_binary_dir}") # for pyconfig.h
+    set(Python_INCLUDE_DIRS ${_include_dir_0} ${_include_dir_1})
+
+    if(APPLE)
+        set_and_check(Python_LIBRARIES "${_binary_dir}/libpython@PYNCPP_REQUIRED_PYTHON_VERSION_MAJOR@.@PYNCPP_REQUIRED_PYTHON_VERSION_MINOR@.dylib")
+    else()
+        set_and_check(Python_LIBRARIES "${_binary_dir}/libpython@PYNCPP_REQUIRED_PYTHON_VERSION_MAJOR@.@PYNCPP_REQUIRED_PYTHON_VERSION_MINOR@.so")
+    endif()
+
+    if(EXISTS "${_include_dir_0}/Python.h")
+        set(Python_Development_FOUND TRUE)
+    else()
+        set(Python_Development_FOUND FALSE)
+    endif()
+endif()
+
+set(Python_INTERPRETER_ID Python)
+set(Python_LINK_OPTIONS)
+
+set(Python_FOUND TRUE)
+check_required_components(Python)

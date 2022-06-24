@@ -1,0 +1,11 @@
+*~
+*.bak
+*.swp
+*.user
+*.orig
+*.directory
+*.DS_Store
+*.aps
+*.autosave
+CMakeLists.txt.user.*
+build
