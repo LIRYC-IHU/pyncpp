@@ -35,20 +35,12 @@ else()
     endif()
 endif()
 
-if(cppflags)
-    set(cppflags "CPPFLAGS='${cppflags}'")
-endif()
-
-if(ldflags)
-    set(ldflags "LDFLAGS='${ldflags}'")
-endif()
-
 ExternalProject_Add(python
     GIT_REPOSITORY "https://github.com/fcollot/cpython.git"
     GIT_TAG "v${PYNCPP_REQUIRED_PYTHON_VERSION}_with_pth"
     GIT_SHALLOW True
     GIT_PROGRESS True
-    CONFIGURE_COMMAND ${CMAKE_COMMAND} -E env "<SOURCE_DIR>/configure" ${configure_args} ${cppflags} ${ldflags}
+    CONFIGURE_COMMAND ${CMAKE_COMMAND} -E env CPPFLAGS=${cppflags} LDFLAGS=${ldflags} "<SOURCE_DIR>/configure" ${configure_args}
     INSTALL_COMMAND ""
     PREFIX "${PYTHON_PREFIX}"
     DOWNLOAD_DIR "${PYTHON_DOWNLOAD_DIR}"
