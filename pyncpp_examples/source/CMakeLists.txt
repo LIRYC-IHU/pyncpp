@@ -7,8 +7,6 @@ cmake_policy(SET CMP0011 NEW) # Policy PUSH/POP in included scripts
 cmake_policy(SET CMP0048 NEW) # Project command manages version variables
 
 include(get_version_from_git)
-include(install_executable)
-include(install_standard_library)
 
 PYNCPP_get_version_from_git(PYNCPP_EXAMPLES_VERSION_MAJOR PYNCPP_EXAMPLES_VERSION_MINOR PYNCPP_EXAMPLES_VERSION_PATCH)
 
