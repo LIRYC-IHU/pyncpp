@@ -3,7 +3,7 @@
 
 cmake_policy(SET CMP0057 NEW) # IN_LIST operator
 
-function(PYNCPP_install_standard_library)
+function(PYNCPP_install_embedded_python)
 
     cmake_parse_arguments(PARSE_ARGV 0 "ARG"
         ""
@@ -38,7 +38,7 @@ function(_install_top_level_modules destination)
         endif()
     endforeach()
 
-    install(FILES ${files_to_install} DESTINATION "${destination}")
+    install(FILES ${files_to_install} DESTINATION "${destination}" COMPONENT Python)
 
 endfunction()
 
@@ -74,7 +74,7 @@ function(_recursively_install_packages package_dir destination)
         endif()
     endforeach()
 
-    install(FILES ${files_to_install} DESTINATION "${destination}")
+    install(FILES ${files_to_install} DESTINATION "${destination}" COMPONENT Python)
 
     foreach(sub_package ${sub_packages})
         _recursively_install_packages("${package_dir}/${sub_package}" "${destination}/${sub_package}")
@@ -100,7 +100,7 @@ function(_install_extensions destination)
         endif()
     endforeach()
 
-    install(FILES ${files_to_install} DESTINATION ${destination})
+    install(FILES ${files_to_install} DESTINATION ${destination} COMPONENT Python)
 
 endfunction()
 

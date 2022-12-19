@@ -64,9 +64,11 @@ ExternalProject_Add(pyncpp
 set(_exported_modules
     add_bindings_module
     add_path_config_file
+    install_path_config_file
     import_python_library
-    install_executable
-    install_standard_library
+    install_embedded_python
+    target_add_path_config_file
+    target_install_path_config_file
     )
 
 set(_exported_modules_dir "${CMAKE_CURRENT_BINARY_DIR}/cmake")

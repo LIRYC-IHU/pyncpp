@@ -22,31 +22,29 @@ target_link_libraries(${TARGET_NAME} PUBLIC
 if(APPLE)
     set_target_properties(${TARGET_NAME} PROPERTIES MACOSX_BUNDLE TRUE)
     set(CPACK_BUNDLE_NAME ${TARGET_NAME})
-    set(_stdlib_prefix "bin/${TARGET_NAME}/Content/Resources")
+    install(TARGETS ${TARGET_NAME} BUNDLE DESTINATION bin)
+    set(_bundle_install_path "bin/$<TARGET_FILE_BASE_NAME:${TARGET_NAME}>.app")
+    set(_stdlib_install_path "${_bundle_install_path}/Contents/Resources/python${Python_VERSION_MAJOR}.${Python_VERSION_MINOR}")
 else()
-    set(_stdlib_prefix "resources/python")
+    install(TARGETS ${TARGET_NAME} RUNTIME DESTINATION bin)
+    set(_stdlib_install_path "resources/python${Python_VERSION_MAJOR}.${Python_VERSION_MINOR}")
 endif()
 
-set(_stdlib "${_stdlib_prefix}/lib/python${Python_VERSION_MAJOR}.${Python_VERSION_MINOR}")
-
-PYNCPP_install_executable("${TARGET_NAME}"
-    DESTINATION bin
-    PYTHON_STDLIB_PATH "${_stdlib}"
-    )
-
-PYNCPP_install_standard_library(DESTINATION "${_stdlib}")
+PYNCPP_target_add_path_config_file(${TARGET_NAME})
+PYNCPP_target_install_path_config_file(${TARGET_NAME} DESTINATION bin STDLIB ${_stdlib_install_path})
+PYNCPP_install_embedded_python(DESTINATION "${_stdlib_install_path}")
 
 if(APPLE)
     get_target_property(_qmake_executable Qt5::qmake IMPORTED_LOCATION)
     get_filename_component(_qt_bin_dir "${_qmake_executable}" DIRECTORY)
     find_program(MACDEPLOYQT_EXECUTABLE macdeployqt HINTS "${_qt_bin_dir}")
-    set(_installed_bundle "\${CMAKE_INSTALL_PREFIX}/bin/${TARGET_NAME}")
 
     install(CODE "
         execute_process(COMMAND ${MACDEPLOYQT_EXECUTABLE}
-            \"${_installed_bundle}\"
-            \"-libpath=${PYNCPP_LIBRARY_DIRS}\"
+            \"\${CMAKE_INSTALL_PREFIX}/${_bundle_install_path}\"
             )
+        include(BundleUtilities)
+        fixup_bundle(\"\${CMAKE_INSTALL_PREFIX}/${_bundle_install_path}\" \"\" \"${PYNCPP_LIBRARY_DIRS}\")
         ")
 endif()
 
