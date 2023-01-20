@@ -14,7 +14,7 @@ void runTest()
     try
     {
         PyObject* globals = cpythonCall(PyDict_New);
-        QString sourceCode = "print('-- This is a test of the Python print function --')";
+        QString sourceCode = "import sys; print(f'sys.path: {sys.path}')";
         cpythonCall(PyRun_String, qUtf8Printable(sourceCode), Py_file_input, globals, nullptr);
         Py_CLEAR(globals);
     }

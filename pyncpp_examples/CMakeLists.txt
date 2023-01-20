@@ -14,10 +14,13 @@ PYNCPP_generate_external_project_directories(pyncpp_examples
 
 set(PYNCPP_EXAMPLES_SOURCE_DIR "${CMAKE_CURRENT_SOURCE_DIR}/source")
 
+ExternalProject_Get_property(pyncpp BINARY_DIR)
+set(PYNCPP_DIR ${BINARY_DIR})
+
 set(cmake_args
     -D "CMAKE_BUILD_TYPE:STRING=${CMAKE_BUILD_TYPE}"
     -D "CMAKE_MODULE_PATH:PATH=${PROJECT_SOURCE_DIR}/cmake"
-    -D "CMAKE_PREFIX_PATH:PATH=${PROJECT_BINARY_DIR}"
+    -D "PYNCPP_DIR:PATH=${PYNCPP_DIR}"
     )
 
 ExternalProject_Add(pyncpp_examples

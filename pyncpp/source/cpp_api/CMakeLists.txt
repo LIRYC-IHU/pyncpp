@@ -87,6 +87,10 @@ add_library(pyncpp SHARED
     ${SWIG_RUNTIME_HEADER}
     )
 
+if(APPLE)
+    set_target_properties(pyncpp PROPERTIES FRAMEWORK TRUE)
+endif()
+
 target_compile_definitions(pyncpp
     PUBLIC
     "PYNCPP_QT5_SUPPORT=$<BOOL:PYNCPP_QT5_SUPPORT>"
@@ -126,5 +130,12 @@ endif()
 # Install/Export
 ################################################################################
 
-install(TARGETS pyncpp EXPORT pyncpp LIBRARY DESTINATION lib)
-install(FILES ${PYNCPP_HEADERS} ${SWIG_RUNTIME_HEADER} DESTINATION include/pyncpp)
+if(APPLE)
+    set(CPACK_BUNDLE_NAME pyncpp)
+    install(TARGETS pyncpp EXPORT pyncpp FRAMEWORK DESTINATION lib)
+    PYNCPP_install_embedded_python(pyncpp lib)
+else()
+    install(TARGETS pyncpp EXPORT pyncpp LIBRARY DESTINATION lib)
+    install(FILES ${PYNCPP_HEADERS} ${SWIG_RUNTIME_HEADER} DESTINATION include/pyncpp)
+    PYNCPP_install_embedded_python(pyncpp lib/pyncpp)
+endif()

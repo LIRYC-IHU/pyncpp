@@ -3,19 +3,26 @@
 
 cmake_policy(SET CMP0057 NEW) # IN_LIST operator
 
-function(PYNCPP_install_embedded_python)
+function(PYNCPP_install_embedded_python target destination)
 
-    cmake_parse_arguments(PARSE_ARGV 0 "ARG"
-        ""
-        "DESTINATION"
-        ""
-        )
+    get_target_property(is_bundle ${target} MACOSX_BUNDLE)
+    get_target_property(is_framework ${target} FRAMEWORK)
 
-    if(NOT ARG_DESTINATION)
-        message(FATAL_ERROR "Missing DESTINATION.")
+    if(is_bundle)
+        set(install_path "${destination}/$<TARGET_FILE_BASE_NAME:${target}>.app/Contents/Frameworks")
+    elseif(is_framework)
+        set(install_path "${destination}/$<TARGET_FILE_BASE_NAME:${target}>.framework/Versions/Current/Libraries")
     endif()
 
-    set(stdlib_dir "${ARG_DESTINATION}")
+    if(is_bundle OR is_framework)
+        install(DIRECTORY ${Python_LIBRARIES} DESTINATION "${install_path}" COMPONENT Python)
+        set(install_path "${install_path}/Python.framework/Versions/Current/Libraries")
+    else()
+        set(install_path "${destination}")
+        install(FILES ${Python_LIBRARIES} DESTINATION "${install_path}" COMPONENT Python)
+    endif()
+
+    set(stdlib_dir "${install_path}/python${Python_VERSION_MAJOR}.${Python_VERSION_MINOR}")
     set(stdext_dir "${stdlib_dir}/lib-dynload")
 
     _install_top_level_modules("${stdlib_dir}")
