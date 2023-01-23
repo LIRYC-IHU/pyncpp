@@ -1,4 +1,4 @@
-// Copyright (c) 2022 IHU Liryc, Université de Bordeaux, Inria.
+// Copyright (c) 2022-2023 IHU Liryc, Université de Bordeaux, Inria.
 // License: BSD-3-Clause
 
 #ifndef PYNCPP_ABSTRACT_OBJECT_H
@@ -67,9 +67,11 @@ public:
     bool hasAttribute(const char* name) const;
     AttributeAccessor attribute(const char* name);
 
+    #if PYNCPP_SWIG_SUPPORT
     /// Equivalent to the Python expression 'dir(o)'
     ///
     QList<QString> dir() const;
+    #endif // PYNCPP_SWIG_SUPPORT
 
     operator bool() const;
     bool operator!() const;

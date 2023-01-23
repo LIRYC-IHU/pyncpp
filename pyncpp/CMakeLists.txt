@@ -1,37 +1,47 @@
-# Copyright (c) 2022 IHU Liryc, Université de Bordeaux, Inria.
+# Copyright (c) 2022-2023 IHU Liryc, Université de Bordeaux, Inria.
 # License: BSD-3-Clause
 
-include(ExternalProject)
-include(CMakePackageConfigHelpers)
+################################################################################
+# Settings
+################################################################################
 
-PYNCPP_generate_external_project_directories(pyncpp
-    PYNCPP_PREFIX
-    PYNCPP_DOWNLOAD_DIR
-    _ignore
-    PYNCPP_BINARY_DIR
-    PYNCPP_STAMP_DIR
-    PYNCPP_TMP_DIR
-    )
+option(PYNCPP_BUILD_CPP_API "Build the C++ API provided by PYNCPP" ON)
 
-set(PYNCPP_SOURCE_DIR "${CMAKE_CURRENT_SOURCE_DIR}/source")
+option(PYNCPP_QT5_SUPPORT "Include support for Qt5." ON)
 
-set(PYNCPP_EXPORT_FILE ${PYNCPP_BINARY_DIR}/PYNCPP_exports.cmake)
+option(PYNCPP_SWIG_SUPPORT "Include support for SWIG bindings." OFF)
+
+################################################################################
+# Dependencies
+################################################################################
+
+if(PYNCPP_QT5_SUPPORT)
+    find_package(Qt5 REQUIRED COMPONENTS Core Widgets)
+endif()
+
+if(PYNCPP_SWIG_SUPPORT)
+    set(PYNCPP_SWIG_VERSION 4.0 CACHE STRING "SWIG version to use for bindings.")
+    find_package(SWIG ${PYNCPP_SWIG_VERSION} REQUIRED COMPONENTS python)
+endif()
+
+################################################################################
+# Configuration
+################################################################################
 
 set(cmake_args
-    -D "CMAKE_BUILD_TYPE:STRING=${CMAKE_BUILD_TYPE}"
-    -D "CMAKE_MODULE_PATH:PATH=${PROJECT_SOURCE_DIR}/cmake"
-    -D "PYNCPP_EXPORT_FILE:FILEPATH=${PYNCPP_EXPORT_FILE}"
-    -D PYNCPP_QT5_SUPPORT:BOOL=${PYNCPP_QT5_SUPPORT}
-    -D PYNCPP_SWIG_SUPPORT:BOOL=${PYNCPP_SWIG_SUPPORT}
+    -D "CMAKE_MINIMUM_REQUIRED_VERSION:STRING=${CMAKE_MINIMUM_REQUIRED_VERSION}"
+    -D "CMAKE_BUILD_TYPE:PATH=${CMAKE_BUILD_TYPE}"
+    -D "CMAKE_CXX_STANDARD:STRING=${CMAKE_CXX_STANDARD}"
+    -D "CMAKE_CXX_STANDARD_REQUIRED:BOOL=${CMAKE_CXX_STANDARD_REQUIRED}"
+    -D "CMAKE_MODULE_PATH:PATH=${PYNCPP_MODULE_DIR}"
+    -D "CMAKE_INSTALL_PREFIX:PATH=<INSTALL_DIR>"
+    -D "CMAKE_MAKE_PROGRAM:PATH=${CMAKE_MAKE_PROGRAM}"
+    -D "PYNCPP_DIR:PATH=${PROJECT_BINARY_DIR}"
+    -D "PYNCPP_VERSION_MAJOR:STRING=${PYNCPP_VERSION_MAJOR}"
+    -D "PYNCPP_VERSION_MINOR:STRING=${PYNCPP_VERSION_MINOR}"
+    -D "PYNCPP_VERSION_PATCH:STRING=${PYNCPP_VERSION_PATCH}"
+    -D "PYNCPP_BUILD_CPP_API:BOOL=${PYNCPP_BUILD_CPP_API}"
     )
-
-if(PYNCPP_USE_CUSTOM_PYTHON)
-    ExternalProject_Get_property(python BINARY_DIR)
-    set(Python_DIR ${BINARY_DIR})
-    list(APPEND cmake_args
-        -D "Python_DIR:PATH=${Python_DIR}"
-        )
-endif()
 
 if(PYNCPP_QT5_SUPPORT)
     list(APPEND cmake_args -D "Qt5_DIR:PATH=${Qt5_DIR}")
@@ -44,37 +54,26 @@ if(PYNCPP_SWIG_SUPPORT)
         )
 endif()
 
+set(prefix "${CMAKE_CURRENT_BINARY_DIR}")
+
+################################################################################
+# External project
+################################################################################
+
 ExternalProject_Add(pyncpp
-    DEPENDS python
-    DOWNLOAD_COMMAND ""
-    INSTALL_COMMAND ""
+    PREFIX "${prefix}"
+    DOWNLOAD_DIR "${prefix}/download"
+    SOURCE_DIR "${CMAKE_CURRENT_SOURCE_DIR}/source"
+    BINARY_DIR "${prefix}/build"
+    STAMP_DIR "${prefix}/stamp"
+    TMP_DIR "${prefix}/tmp"
+    INSTALL_DIR "${PROJECT_BINARY_DIR}"
+    DEPENDS pyncpp_python
     CMAKE_ARGS ${cmake_args}
-    PREFIX "${PYNCPP_PREFIX}"
-    DOWNLOAD_DIR "${PYNCPP_DOWNLOAD_DIR}"
-    SOURCE_DIR "${PYNCPP_SOURCE_DIR}"
-    BINARY_DIR "${PYNCPP_BINARY_DIR}"
-    STAMP_DIR "${PYNCPP_STAMP_DIR}"
-    TMP_DIR "${PYNCPP_TMP_DIR}"
     )
 
-ExternalProject_Add_Step(pyncpp post_build
-    COMMAND ${CMAKE_COMMAND}
-    -D "CMAKE_MODULE_PATH:PATH=${PROJECT_SOURCE_DIR}/cmake"
-    -D "PROJECT_BINARY_DIR:PATH=${PROJECT_BINARY_DIR}"
-    -D "PYNCPP_BINARY_DIR:PATH=${PYNCPP_BINARY_DIR}"
-    -D "Python_DIR:PATH=${Python_DIR}"
-    -D "PYNCPP_VERSION:STRING=${PYNCPP_VERSION}"
-    -D "PYNCPP_EXPORT_FILE:PATH=${PYNCPP_EXPORT_FILE}"
-    -D "PYNCPP_CMAKE_DIR:PATH=${PROJECT_SOURCE_DIR}/cmake"
-    -D "PYNCPP_SWIG_VERSION:STRING=${PYNCPP_SWIG_VERSION}"
-    -D "PYNCPP_REQUIRED_PYTHON_VERSION_MAJOR:STRING=${PYNCPP_REQUIRED_PYTHON_VERSION_MAJOR}"
-    -D "PYNCPP_REQUIRED_PYTHON_VERSION_MINOR:STRING=${PYNCPP_REQUIRED_PYTHON_VERSION_MINOR}"
-    -D "PYNCPP_USE_CUSTOM_PYTHON:BOOL=${PYNCPP_USE_CUSTOM_PYTHON}"
-    -D "PYNCPP_EXCLUDED_PYTHON_MODULES:STRING=${PYNCPP_EXCLUDED_PYTHON_MODULES}"
-    -D "PYNCPP_QT5_SUPPORT:BOOL=${PYNCPP_QT5_SUPPORT}"
-    -D "PYNCPP_SWIG_SUPPORT:BOOL=${PYNCPP_SWIG_SUPPORT}"
-    -D "PYNCPP_NO_GPL:BOOL=${PYNCPP_NO_GPL}"
-    -D "PYNCPP_AVAILABLE_COMMANDS:STRING=${PYNCPP_AVAILABLE_COMMANDS}"
-    -P "${CMAKE_CURRENT_LIST_DIR}/post_build.cmake"
-    DEPENDEES build
-    )
+################################################################################
+# Install
+################################################################################
+
+install(SCRIPT "${prefix}/build/cmake_install.cmake")

@@ -1,4 +1,4 @@
-// Copyright (c) 2022 IHU Liryc, Université de Bordeaux, Inria.
+// Copyright (c) 2022-2023 IHU Liryc, Université de Bordeaux, Inria.
 // License: BSD-3-Clause
 
 #include "manager.h"
@@ -6,7 +6,9 @@
 #include <stdexcept>
 
 #if PYNCPP_QT5_SUPPORT
+#include <QApplication>
 #include <QDebug>
+#include <QDir>
 #else
 #include <iostream>
 #endif
@@ -22,6 +24,7 @@ struct ManagerPrivate
     Manager::OutputFunction infoOutput = nullptr;
     Manager::OutputFunction warningOutput = nullptr;
     Manager::OutputFunction errorOutput = nullptr;
+    wchar_t* pythonHome;
 };
 
 Manager::Manager() :
@@ -46,12 +49,12 @@ bool Manager::isRunning()
     return d->isRunning;
 }
 
-bool Manager::initialize()
+bool Manager::initialize(const char* pythonHome)
 {
     try
     {
         initializeOutputFunctions();
-        initializeInterpreter();
+        initializeInterpreter(pythonHome);
         initializeAPI();
         d->isRunning = true;
     }
@@ -94,8 +97,11 @@ void Manager::initializeOutputFunctions()
     }
 }
 
-void Manager::initializeInterpreter()
+void Manager::initializeInterpreter(const char* pythonHome)
 {
+    d->pythonHome = Py_DecodeLocale(qUtf8Printable(QDir::toNativeSeparators(pythonHome)), nullptr);
+    Py_SetPythonHome(d->pythonHome);
+
     Py_Initialize();
 
     if (Py_IsInitialized())

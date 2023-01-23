@@ -1,4 +1,4 @@
-// Copyright (c) 2022 IHU Liryc, Université de Bordeaux, Inria.
+// Copyright (c) 2022-2023 IHU Liryc, Université de Bordeaux, Inria.
 // License: BSD-3-Clause
 
 #ifndef PYNCPP_MANAGER_H
@@ -23,7 +23,7 @@ public:
 
     void setOutputFunctions(OutputFunction info, OutputFunction warning, OutputFunction error);
 
-    bool initialize();
+    bool initialize(const char* pythonHome);
 
     bool isRunning();
 
@@ -31,7 +31,7 @@ private:
     ManagerPrivate* const d;
 
     void initializeOutputFunctions();
-    void initializeInterpreter();
+    void initializeInterpreter(const char* pythonHome);
     void initializeAPI();
 
     void finalize();
