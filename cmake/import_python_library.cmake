@@ -3,12 +3,32 @@
 
 macro(PYNCPP_import_python_library target_name)
 
-    add_library(${target_name} SHARED IMPORTED)
+    cmake_parse_arguments("ARG"
+        "GLOBAL"
+        "LIBRARIES;INCLUDE_DIRS"
+        ""
+        ${ARGN})
 
-    target_include_directories(${target_name} INTERFACE ${Python_INCLUDE_DIRS})
+    if(NOT ARG_LIBRARIES)
+        message(FATAL_ERROR "Missing LIBRARIES.")
+    endif()
+
+    if(NOT ARG_INCLUDE_DIRS)
+        message(FATAL_ERROR "Missing INCLUDE_DIRS.")
+    endif()
+
+    if(ARG_GLOBAL)
+        set(_global GLOBAL)
+    else()
+        set(_global)
+    endif()
+
+    add_library(${target_name} SHARED IMPORTED ${_global})
+
+    target_include_directories(${target_name} INTERFACE ${ARG_INCLUDE_DIRS})
 
     if(WIN32)
-        foreach(_library ${Python_LIBRARIES})
+        foreach(_library ${ARG_LIBRARIES})
             get_filename_component(_libext "${_library}" LAST_EXT)
             get_filename_component(_libname "${_library}" NAME_WLE)
 
@@ -57,13 +77,13 @@ macro(PYNCPP_import_python_library target_name)
         if(APPLE)
             set_target_properties(${target_name} PROPERTIES
                 FRAMEWORK TRUE
-                IMPORTED_LOCATION "${Python_LIBRARIES}/Python"
-                IMPORTED_SONAME "${Python_LIBRARIES}"
+                IMPORTED_LOCATION "${ARG_LIBRARIES}/Python"
+                IMPORTED_SONAME "${ARG_LIBRARIES}"
                 )
         else()
             set_target_properties(${target_name} PROPERTIES
-                IMPORTED_LOCATION "${Python_LIBRARIES}"
-                IMPORTED_SONAME "${Python_LIBRARIES}"
+                IMPORTED_LOCATION "${ARG_LIBRARIES}"
+                IMPORTED_SONAME "${ARG_LIBRARIES}"
                 )
         endif()
     endif()

@@ -87,9 +87,7 @@ add_library(pyncpp SHARED
     ${SWIG_RUNTIME_HEADER}
     )
 
-if(APPLE)
-    set_target_properties(pyncpp PROPERTIES FRAMEWORK TRUE)
-endif()
+add_dependencies(pyncpp python)
 
 target_compile_definitions(pyncpp
     PUBLIC
@@ -103,20 +101,23 @@ target_compile_definitions(pyncpp
 
 target_include_directories(pyncpp
     PRIVATE
-    $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}>/pyncpp
+    "$<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}>/pyncpp"
     PUBLIC
-    $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}>
-    $<BUILD_INTERFACE:${SWIG_RUNTIME_HEADER_DIRECTORY}>
-    "$<BUILD_INTERFACE:${Python_INCLUDE_DIRS}>"
-    $<INSTALL_INTERFACE:include/pyncpp>
+    "$<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}>"
+    "$<BUILD_INTERFACE:${SWIG_RUNTIME_HEADER_DIRECTORY}>"
+    "$<INSTALL_INTERFACE:include/pyncpp>"
     )
+
+foreach(dir ${PYNCPP_PYTHON_INCLUDE_DIRS})
+    target_include_directories(pyncpp PUBLIC "$<BUILD_INTERFACE:${dir}>")
+endforeach()
 
 ################################################################################
 # Link
 ################################################################################
 
 target_link_libraries(pyncpp PUBLIC
-    Python_LIBRARY
+    ${PYNCPP_PYTHON_LIBRARIES}
     )
 
 if(PYNCPP_QT5_SUPPORT)
@@ -130,12 +131,8 @@ endif()
 # Install/Export
 ################################################################################
 
-if(APPLE)
-    set(CPACK_BUNDLE_NAME pyncpp)
-    install(TARGETS pyncpp EXPORT pyncpp FRAMEWORK DESTINATION lib)
-    PYNCPP_install_embedded_python(pyncpp lib)
-else()
-    install(TARGETS pyncpp EXPORT pyncpp LIBRARY DESTINATION lib)
-    install(FILES ${PYNCPP_HEADERS} ${SWIG_RUNTIME_HEADER} DESTINATION include/pyncpp)
-    PYNCPP_install_embedded_python(pyncpp lib/pyncpp)
-endif()
+install(TARGETS pyncpp
+    EXPORT pyncpp
+    LIBRARY
+    DESTINATION "lib"
+    )

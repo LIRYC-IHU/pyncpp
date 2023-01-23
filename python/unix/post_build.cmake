@@ -1,28 +1,28 @@
-# Copyright (c) 2022 IHU Liryc, Université de Bordeaux, Inria.
+# Copyright (c) 2023 IHU Liryc, Université de Bordeaux, Inria.
 # License: BSD-3-Clause
 
-include(CMakePackageConfigHelpers)
-include(add_path_config_file)
+file(READ "${CMAKE_CURRENT_BINARY_DIR}/pybuilddir.txt" pybuilddir)
 
-cmake_policy(SET CMP0011 NEW) # Policy PUSH/POP in included scripts
+if(pybuilddir)
+    file(REMOVE_RECURSE "${CMAKE_CURRENT_BINARY_DIR}/lib")
+    file(RENAME "${pybuilddir}" "${CMAKE_CURRENT_BINARY_DIR}/lib")
+endif()
 
-configure_package_config_file("${CMAKE_CURRENT_LIST_DIR}/PythonConfig.cmake.in" "${PYTHON_BINARY_DIR}/PythonConfig.cmake"
-    INSTALL_PREFIX "${PYTHON_PREFIX}"
-    INSTALL_DESTINATION "${PYTHON_BINARY_DIR}"
-    PATH_VARS PYTHON_SOURCE_DIR PYTHON_BINARY_DIR
-    )
+if(APPLE)
+    if(NOT CMAKE_INSTALL_NAME_TOOL)
+        find_program(CMAKE_INSTALL_NAME_TOOL install_name_tool)
+    endif()
 
-write_basic_package_version_file("${PYTHON_BINARY_DIR}/PythonConfigVersion.cmake"
-    VERSION "${PYNCPP_REQUIRED_PYTHON_VERSION_MAJOR}.${PYNCPP_REQUIRED_PYTHON_VERSION_MINOR}.${PYNCPP_REQUIRED_PYTHON_VERSION_PATCH}"
-    COMPATIBILITY SameMinorVersion
-    )
+    if(PYNCPP_PYTHON_FRAMEWORK)
+        set(library "Python.framework/Versions/${PYNCPP_PYTHON_VERSION_MAJOR}.${PYNCPP_PYTHON_VERSION_MINOR}/Python")
+    else()
+        set(library "libpython${PYNCPP_PYTHON_VERSION_MAJOR}.${PYNCPP_PYTHON_VERSION_MINOR}.dylib")
+    endif()
 
-find_package(Python REQUIRED
-    COMPONENTS Interpreter
-    PATHS ${PYTHON_BINARY_DIR}
-    NO_DEFAULT_PATHS
-    )
+    execute_process(
+        COMMAND ${CMAKE_INSTALL_NAME_TOOL} -id "@rpath/${library}" "${CMAKE_CURRENT_BINARY_DIR}/${library}"
+        COMMAND_ERROR_IS_FATAL ANY
+        )
+endif()
 
-PYNCPP_add_path_config_file(${Python_EXECUTABLE}
-    PATHS ${Python_STDLIB} ${Python_STDARCH}
-    )
+
