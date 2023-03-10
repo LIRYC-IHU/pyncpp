@@ -11,6 +11,7 @@ cmake_policy(SET CMP0086 NEW) # Pass -module option to SWIG
 
 include(get_version_from_git)
 include(import_python_library)
+include(install_embedded_python)
 
 if(PYNCPP_SWIG_SUPPORT)
     include(add_bindings_module)

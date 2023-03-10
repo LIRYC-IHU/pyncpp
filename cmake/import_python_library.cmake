@@ -54,10 +54,18 @@ macro(PYNCPP_import_python_library target_name)
             IMPORTED_IMPLIB "${_implib}"
             )
     else()
-        set_target_properties(${target_name} PROPERTIES
-            IMPORTED_LOCATION "${Python_LIBRARIES}"
-            IMPORTED_SONAME "${Python_LIBRARIES}"
-            )
+        if(APPLE)
+            set_target_properties(${target_name} PROPERTIES
+                FRAMEWORK TRUE
+                IMPORTED_LOCATION "${Python_LIBRARIES}/Python"
+                IMPORTED_SONAME "${Python_LIBRARIES}"
+                )
+        else()
+            set_target_properties(${target_name} PROPERTIES
+                IMPORTED_LOCATION "${Python_LIBRARIES}"
+                IMPORTED_SONAME "${Python_LIBRARIES}"
+                )
+        endif()
     endif()
 
 endmacro()

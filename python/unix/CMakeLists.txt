@@ -13,11 +13,16 @@ PYNCPP_generate_external_project_directories(python
     )
 
 set(configure_args
-    --enable-shared
     --without-static-libpython
     --disable-test-modules
     $<$<CONFIG:Release>:--enable-optimizations>
     )
+
+if(APPLE)
+    list(APPEND configure_args --enable-framework)
+else()
+    list(APPEND configure_args --enable-shared)
+endif()
 
 if(PYNCPP_NO_GPL)
     list(APPEND configure_args --with-readline=editline)
@@ -63,11 +68,11 @@ ExternalProject_Add_Step(python post_build
     DEPENDEES build
     )
 
-if(APPLE)
-    set(library_name "libpython${PYNCPP_REQUIRED_PYTHON_VERSION_MAJOR}.${PYNCPP_REQUIRED_PYTHON_VERSION_MINOR}.dylib")
-    ExternalProject_Add_Step(python relocate_binaries
-        COMMAND ${CMAKE_INSTALL_NAME_TOOL} -id "${PYTHON_BINARY_DIR}/${library_name}" "${PYTHON_BINARY_DIR}/${library_name}"
-        COMMAND ${CMAKE_INSTALL_NAME_TOOL} -change "/usr/local/lib/${library_name}" "${PYTHON_BINARY_DIR}/${library_name}" "${PYTHON_BINARY_DIR}/python.exe"
-        DEPENDEES build
-        )
-endif()
+#if(APPLE)
+#    set(library_name "libpython${PYNCPP_REQUIRED_PYTHON_VERSION_MAJOR}.${PYNCPP_REQUIRED_PYTHON_VERSION_MINOR}.dylib")
+#    ExternalProject_Add_Step(python relocate_binaries
+#        COMMAND ${CMAKE_INSTALL_NAME_TOOL} -id "${PYTHON_BINARY_DIR}/${library_name}" "${PYTHON_BINARY_DIR}/${library_name}"
+#        COMMAND ${CMAKE_INSTALL_NAME_TOOL} -change "/usr/local/lib/${library_name}" "${PYTHON_BINARY_DIR}/${library_name}" "${PYTHON_BINARY_DIR}/python.exe"
+#        DEPENDEES build
+#        )
+#endif()

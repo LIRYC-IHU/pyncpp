@@ -6,27 +6,27 @@ include(CMakeFindDependencyMacro)
 @PACKAGE_INIT@
 
 set_and_check(PYNCPP_LIBRARY_DIRS @PACKAGE_PYNCPP_BINARY_DIR@)
-set_and_check(PYNCPP_EXPORT_FILE @PACKAGE_PYNCPP_EXPORT_FILE@)
 
 if(@PYNCPP_USE_CUSTOM_PYTHON@)
     set_and_check(PYNCPP_PYTHON_DIR @PACKAGE_Python_DIR@)
 endif()
 
-set_and_check(_exported_modules_dir @PACKAGE__exported_modules_dir@)
+set_and_check(_exported_modules_dir @PACKAGE_exported_modules_dir@)
 
-foreach(_module @_exported_modules@)
+foreach(_module @exported_modules@)
     include(${_exported_modules_dir}/${_module}.cmake)
 endforeach()
 
-set(PYNCPP_EXCLUDED_PYTHON_MODULES "@PYNCPP_EXCLUDED_PYTHON_MODULES@")
+set_and_check(_pyncpp_export_file @PACKAGE_PYNCPP_EXPORT_FILE@)
+
+set(PYNCPP_EXCLUDED_PYTHON_MODULES @PYNCPP_EXCLUDED_PYTHON_MODULES@)
 
 set(PYNCPP_Qt5_FOUND @PYNCPP_QT5_SUPPORT@)
 set(PYNCPP_SWIG_FOUND @PYNCPP_SWIG_SUPPORT@)
 
 set(PYNCPP_NO_GPL @PYNCPP_NO_GPL@)
-set(PYNCPP_AVAILABLE_COMMANDS @PYNCPP_AVAILABLE_COMMANDS@)
 
-if(PYNCPP_SWIG_SUPPORT)
+if(@PYNCPP_SWIG_SUPPORT@)
     cmake_policy(SET CMP0078 NEW) # Standard SWIG target names
     cmake_policy(SET CMP0086 NEW) # Pass -module option to SWIG
     find_dependency(SWIG @PYNCPP_SWIG_VERSION@ REQUIRED COMPONENTS python)
@@ -51,7 +51,7 @@ else()
     endif()
 endif()
 
-include("${PYNCPP_EXPORT_FILE}")
+include("${_pyncpp_export_file}")
 
 if(NOT TARGET Python_LIBRARY)
     PYNCPP_import_python_library(Python_LIBRARY)

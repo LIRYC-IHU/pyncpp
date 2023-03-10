@@ -20,3 +20,12 @@ find_package(PYNCPP REQUIRED)
 if(PYNCPP_Qt5_FOUND)
     add_subdirectory(qt_console)
 endif()
+
+if(NOT APPLE)
+    set(CPACK_INSTALL_CMAKE_PROJECTS
+        ${CMAKE_CURRENT_BINARY_DIR} PYNCPP_EXAMPLES ALL /
+        ${PYNCPP_DIR} PYNCPP ALL /
+        )
+endif()
+
+include(CPack)

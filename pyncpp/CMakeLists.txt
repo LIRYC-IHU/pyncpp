@@ -15,7 +15,7 @@ PYNCPP_generate_external_project_directories(pyncpp
 
 set(PYNCPP_SOURCE_DIR "${CMAKE_CURRENT_SOURCE_DIR}/source")
 
-set(PYNCPP_EXPORT_FILE ${CMAKE_CURRENT_BINARY_DIR}/PYNCPP_exports.cmake)
+set(PYNCPP_EXPORT_FILE ${PYNCPP_BINARY_DIR}/PYNCPP_exports.cmake)
 
 set(cmake_args
     -D "CMAKE_BUILD_TYPE:STRING=${CMAKE_BUILD_TYPE}"
@@ -26,8 +26,8 @@ set(cmake_args
     )
 
 if(PYNCPP_USE_CUSTOM_PYTHON)
-    ExternalProject_Get_property(python PREFIX)
-    set(Python_DIR ${PREFIX})
+    ExternalProject_Get_property(python BINARY_DIR)
+    set(Python_DIR ${BINARY_DIR})
     list(APPEND cmake_args
         -D "Python_DIR:PATH=${Python_DIR}"
         )
@@ -57,42 +57,24 @@ ExternalProject_Add(pyncpp
     TMP_DIR "${PYNCPP_TMP_DIR}"
     )
 
-################################################################################
-# Export modules
-################################################################################
-
-set(_exported_modules
-    add_bindings_module
-    add_path_config_file
-    install_path_config_file
-    import_python_library
-    install_embedded_python
-    target_add_path_config_file
-    target_install_path_config_file
-    )
-
-set(_exported_modules_dir "${CMAKE_CURRENT_BINARY_DIR}/cmake")
-file(MAKE_DIRECTORY "${_exported_modules_dir}")
-
-foreach(_module ${_exported_modules})
-    file(COPY "${PROJECT_SOURCE_DIR}/cmake/${_module}.cmake" DESTINATION "${_exported_modules_dir}")
-endforeach()
-
-################################################################################
-# Config files
-################################################################################
-
-configure_package_config_file("${CMAKE_CURRENT_SOURCE_DIR}/PYNCPPConfig.cmake.in" "${PROJECT_BINARY_DIR}/PYNCPPConfig.cmake"
-    INSTALL_PREFIX "${PROJECT_BINARY_DIR}"
-    INSTALL_DESTINATION "${PROJECT_BINARY_DIR}"
-    PATH_VARS
-    PYNCPP_BINARY_DIR
-    Python_DIR
-    PYNCPP_EXPORT_FILE
-    _exported_modules_dir
-    )
-
-write_basic_package_version_file("${PROJECT_BINARY_DIR}/PYNCPPConfigVersion.cmake"
-    VERSION "${PYNCPP_VERSION}"
-    COMPATIBILITY SameMinorVersion
+ExternalProject_Add_Step(pyncpp post_build
+    COMMAND ${CMAKE_COMMAND}
+    -D "CMAKE_MODULE_PATH:PATH=${PROJECT_SOURCE_DIR}/cmake"
+    -D "PROJECT_BINARY_DIR:PATH=${PROJECT_BINARY_DIR}"
+    -D "PYNCPP_BINARY_DIR:PATH=${PYNCPP_BINARY_DIR}"
+    -D "Python_DIR:PATH=${Python_DIR}"
+    -D "PYNCPP_VERSION:STRING=${PYNCPP_VERSION}"
+    -D "PYNCPP_EXPORT_FILE:PATH=${PYNCPP_EXPORT_FILE}"
+    -D "PYNCPP_CMAKE_DIR:PATH=${PROJECT_SOURCE_DIR}/cmake"
+    -D "PYNCPP_SWIG_VERSION:STRING=${PYNCPP_SWIG_VERSION}"
+    -D "PYNCPP_REQUIRED_PYTHON_VERSION_MAJOR:STRING=${PYNCPP_REQUIRED_PYTHON_VERSION_MAJOR}"
+    -D "PYNCPP_REQUIRED_PYTHON_VERSION_MINOR:STRING=${PYNCPP_REQUIRED_PYTHON_VERSION_MINOR}"
+    -D "PYNCPP_USE_CUSTOM_PYTHON:BOOL=${PYNCPP_USE_CUSTOM_PYTHON}"
+    -D "PYNCPP_EXCLUDED_PYTHON_MODULES:STRING=${PYNCPP_EXCLUDED_PYTHON_MODULES}"
+    -D "PYNCPP_QT5_SUPPORT:BOOL=${PYNCPP_QT5_SUPPORT}"
+    -D "PYNCPP_SWIG_SUPPORT:BOOL=${PYNCPP_SWIG_SUPPORT}"
+    -D "PYNCPP_NO_GPL:BOOL=${PYNCPP_NO_GPL}"
+    -D "PYNCPP_AVAILABLE_COMMANDS:STRING=${PYNCPP_AVAILABLE_COMMANDS}"
+    -P "${CMAKE_CURRENT_LIST_DIR}/post_build.cmake"
+    DEPENDEES build
     )
