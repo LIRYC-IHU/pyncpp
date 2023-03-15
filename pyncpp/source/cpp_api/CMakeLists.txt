@@ -6,25 +6,25 @@
 ################################################################################
 
 if(PYNCPP_SWIG_SUPPORT)
-    set(SWIG_RUNTIME_HEADER_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/swig)
-    set(SWIG_RUNTIME_HEADER ${SWIG_RUNTIME_HEADER_DIRECTORY}/swig_runtime.h)
+    set(swig_runtime_header_directory "${CMAKE_CURRENT_BINARY_DIR}/swig")
+    set(swig_runtime_header "${swig_runtime_header_directory}/swig_runtime.h")
 
-    if(NOT EXISTS ${SWIG_RUNTIME_HEADER})
+    if(NOT EXISTS "${swig_runtime_header}")
         execute_process(
-            COMMAND ${CMAKE_COMMAND} -E make_directory ${SWIG_RUNTIME_HEADER_DIRECTORY}
+            COMMAND ${CMAKE_COMMAND} -E make_directory "${swig_runtime_header_directory}"
             COMMAND ${SWIG_EXECUTABLE}
             "-python"
             "-c++"
-            "-external-runtime" ${SWIG_RUNTIME_HEADER}
+            "-external-runtime" "${swig_runtime_header}"
             )
     endif()
 endif()
 
 ################################################################################
-# Sources
+# Files
 ################################################################################
 
-set(PYNCPP_HEADERS
+set(headers
     pyncpp.h
     pyncpp/conversion.h
     pyncpp/conversion/object.h
@@ -54,7 +54,7 @@ set(PYNCPP_HEADERS
     pyncpp/object/standard_objects.h
     )
 
-set(PYNCPP_SOURCES
+set(sources
     pyncpp/conversion/object.cpp
     pyncpp/conversion/primitive.cpp
     pyncpp/conversion/qlist.cpp
@@ -81,16 +81,15 @@ set(PYNCPP_SOURCES
 # Library
 ################################################################################
 
-add_library(pyncpp SHARED
-    ${PYNCPP_HEADERS}
-    ${PYNCPP_SOURCES}
-    ${SWIG_RUNTIME_HEADER}
+add_library(pyncpp_cpp_api SHARED
+    ${headers}
+    ${sources}
+    ${swig_runtime_header}
     )
 
-add_dependencies(pyncpp python)
-
-target_compile_definitions(pyncpp
+target_compile_definitions(pyncpp_cpp_api
     PUBLIC
+    "PYNCPP_BUILD_EXTENDED_CPP_API=$<BOOL:PYNCPP_BUILD_EXTENDED_CPP_API>"
     "PYNCPP_QT5_SUPPORT=$<BOOL:PYNCPP_QT5_SUPPORT>"
     "PYNCPP_SWIG_SUPPORT=$<BOOL:PYNCPP_SWIG_SUPPORT>"
     )
@@ -99,29 +98,25 @@ target_compile_definitions(pyncpp
 # Includes
 ################################################################################
 
-target_include_directories(pyncpp
+target_include_directories(pyncpp_cpp_api
     PRIVATE
     "$<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}>/pyncpp"
     PUBLIC
     "$<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}>"
-    "$<BUILD_INTERFACE:${SWIG_RUNTIME_HEADER_DIRECTORY}>"
-    "$<INSTALL_INTERFACE:include/pyncpp>"
+    "$<BUILD_INTERFACE:${swig_runtime_header_directory}>"
+    "$<INSTALL_INTERFACE:include/pyncpp/cpp_api>"
     )
-
-foreach(dir ${PYNCPP_PYTHON_INCLUDE_DIRS})
-    target_include_directories(pyncpp PUBLIC "$<BUILD_INTERFACE:${dir}>")
-endforeach()
 
 ################################################################################
 # Link
 ################################################################################
 
-target_link_libraries(pyncpp PUBLIC
-    ${PYNCPP_PYTHON_LIBRARIES}
+target_link_libraries(pyncpp_cpp_api PUBLIC
+    ${PYNCPP_PYTHON_LIBRARY}
     )
 
 if(PYNCPP_QT5_SUPPORT)
-    target_link_libraries(pyncpp PRIVATE
+    target_link_libraries(pyncpp_cpp_api PRIVATE
         Qt5::Core
         Qt5::Widgets
         )
@@ -131,8 +126,13 @@ endif()
 # Install/Export
 ################################################################################
 
-install(TARGETS pyncpp
+install(TARGETS pyncpp_cpp_api
     EXPORT pyncpp
     LIBRARY
     DESTINATION "lib"
+    )
+
+install(DIRECTORY "${CMAKE_CURRENT_SOURCE_DIR}/"
+    DESTINATION "include/pyncpp/cpp_api"
+    PATTERN "CMakeLists.txt" EXCLUDE
     )

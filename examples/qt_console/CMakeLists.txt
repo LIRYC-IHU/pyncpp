@@ -44,6 +44,12 @@ target_link_libraries(${TARGET_NAME} PUBLIC
     )
 
 ################################################################################
+# Additional Python modules
+################################################################################
+
+PYNCPP_add_python_modules(${TARGET_NAME}_python_modules pip_install_test)
+
+################################################################################
 # Install
 ################################################################################
 
@@ -56,7 +62,8 @@ if(PYNCPP_EXAMPLES_FRAMEWORKS)
         )
 
     set(_bundle_install_path "\$ENV{DESTDIR}\${CMAKE_INSTALL_PREFIX}/bin/${TARGET_NAME}.app")
-    set(_stdlib_install_path "${_bundle_install_path}/Contents/Resources")
+    set(_stdlib_destination "bin/${TARGET_NAME}.app/Contents/Resources")
+    set(_stdlib_install_path "\$ENV{DESTDIR}\${CMAKE_INSTALL_PREFIX}/${_stdlib_destination}")
     set(_pth_file "${_bundle_install_path}/Contents/MacOS/${TARGET_NAME}._pth")
 
     PYNCPP_get_python_path_config(_python_paths
@@ -73,17 +80,17 @@ if(PYNCPP_EXAMPLES_FRAMEWORKS)
         COMPONENT ${TARGET_NAME}
         EXCLUDE_FROM_ALL
         )
+
+    #PYNCPP_install_python_modules(STDLIB_DESTINATION ${_stdlib_destination} COMPONENT ${TARGET_NAME})
 else()
     install(TARGETS ${TARGET_NAME}
         RUNTIME
         DESTINATION bin
         COMPONENT ${TARGET_NAME}
-        EXCLUDE_FROM_ALL
         )
 
     set(_executable_install_path "\$ENV{DESTDIR}\${CMAKE_INSTALL_PREFIX}/bin")
     set(_stdlib_install_path "\$ENV{DESTDIR}\${CMAKE_INSTALL_PREFIX}/lib")
-    set(_pth_file "${_executable_install_path}/${TARGET_NAME}._pth")
 
     PYNCPP_get_python_path_config(_python_paths
         EXECUTABLE_PATH "${_executable_install_path}"
@@ -91,10 +98,9 @@ else()
         )
 
     install(CODE "
-        file(WRITE \"${_pth_file}\" \"${_python_paths}\")
+        file(WRITE \"${_executable_install_path}/${TARGET_NAME}._pth\" \"${_python_paths}\")
         "
         COMPONENT ${TARGET_NAME}
-        EXCLUDE_FROM_ALL
         )
 endif()
 
@@ -103,19 +109,10 @@ endif()
 ################################################################################
 
 if(PYNCPP_EXAMPLES_FRAMEWORKS)
-   set(CPACK_BUNDLE_NAME ${TARGET_NAME})
-
    set(CPACK_INSTALL_CMAKE_PROJECTS
        ${CPACK_INSTALL_CMAKE_PROJECTS}
        "${CMAKE_CURRENT_BINARY_DIR};examples;${TARGET_NAME};/"
-       "${PYNCPP_DIR};pyncpp;python;/bin/${TARGET_NAME}.app/Contents/Resources"
-       PARENT_SCOPE
-       )
-else()
-   set(CPACK_INSTALL_CMAKE_PROJECTS
-       ${CPACK_INSTALL_CMAKE_PROJECTS}
-       "${CMAKE_CURRENT_BINARY_DIR};examples;${TARGET_NAME};/"
-       "${PYNCPP_DIR};pyncpp;ALL;/"
+       "${PYNCPP_DIR};pyncpp;python;/${_stdlib_destination}"
        PARENT_SCOPE
        )
 endif()

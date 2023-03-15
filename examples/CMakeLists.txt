@@ -61,7 +61,19 @@ if(PYNCPP_Qt5_FOUND)
 endif()
 
 ################################################################################
-# Packaging
+# Install/packaging
 ################################################################################
+
+if(NOT PYNCPP_EXAMPLES_FRAMEWORKS)
+    PYNCPP_install_python_modules()
+
+    set(CPACK_BUNDLE_NAME ${PROJECT_NAME})
+
+    set(CPACK_INSTALL_CMAKE_PROJECTS
+        "${CMAKE_CURRENT_BINARY_DIR};examples;ALL;/"
+        "${PYNCPP_DIR};pyncpp;ALL;/"
+        ${CPACK_INSTALL_CMAKE_PROJECTS}
+        )
+endif()
 
 include(CPack)
