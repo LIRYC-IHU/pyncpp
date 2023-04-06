@@ -1,4 +1,4 @@
-// Copyright (c) 2022 IHU Liryc, Université de Bordeaux, Inria.
+// Copyright (c) 2022-2023 IHU Liryc, Université de Bordeaux, Inria.
 // License: BSD-3-Clause
 
 #ifndef PYNCPP_OBJECT_H
@@ -10,7 +10,7 @@
 
 #include "../external/cpython.h"
 
-#ifdef PYNCPP_QT5_SUPPORT
+#if PYNCPP_QT5_SUPPORT
 #include <QString>
 #endif // PYNCPP_QT5_SUPPORT
 
@@ -64,11 +64,11 @@ public:
     ///
     Object(const char* value);
 
-#ifdef PYNCPP_QT5_SUPPORT
+#if PYNCPP_SWIG_SUPPORT
     /// Creates a wrapped Python string.
     ///
     Object(QString value);
-#endif // PYNCPP_QT5_SUPPORT
+#endif // PYNCPP_SWIG_SUPPORT
 
     virtual ~Object();
 

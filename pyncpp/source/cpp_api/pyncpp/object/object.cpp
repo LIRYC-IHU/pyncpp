@@ -1,4 +1,4 @@
-// Copyright (c) 2022 IHU Liryc, Université de Bordeaux, Inria.
+// Copyright (c) 2022-2023 IHU Liryc, Université de Bordeaux, Inria.
 // License: BSD-3-Clause
 
 #include "object.h"
@@ -88,7 +88,7 @@ Object::Object(const char* value) :
     internalSetReference(reference);
 }
 
-#ifdef PYNCPP_QT5_SUPPORT
+#if PYNCPP_SWIG_SUPPORT
 Object::Object(QString value) :
     d(new ObjectPrivate)
 {
@@ -103,7 +103,7 @@ Object::Object(QString value) :
     PYNCPP_RELEASE_GIL;
     internalSetReference(reference);
 }
-#endif // PYNCPP_QT5_SUPPORT
+#endif // PYNCPP_SWIG_SUPPORT
 
 Object::~Object()
 {

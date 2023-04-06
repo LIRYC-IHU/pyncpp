@@ -1,4 +1,4 @@
-// Copyright (c) 2022 IHU Liryc, Université de Bordeaux, Inria.
+// Copyright (c) 2022-2023 IHU Liryc, Université de Bordeaux, Inria.
 // License: BSD-3-Clause
 
 #include "abstract_object.h"
@@ -79,11 +79,13 @@ AttributeAccessor AbstractObject::attribute(const char* name)
     return AttributeAccessor(*this, name);
 }
 
+#if PYNCPP_SWIG_SUPPORT
 QList<QString> AbstractObject::dir() const
 {
     Object dir = cpythonCall(PyObject_Dir, **this);
     return dir.toCPP<QList<QString> >();
 }
+#endif // PYNCPP_SWIG_SUPPORT
 
 AbstractObject::operator bool() const
 {

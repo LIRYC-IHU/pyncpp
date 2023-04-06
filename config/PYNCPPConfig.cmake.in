@@ -1,0 +1,55 @@
+# Copyright (c) 2022-2023 IHU Liryc, Université de Bordeaux, Inria.
+# License: BSD-3-Clause
+
+include(CMakeFindDependencyMacro)
+
+@PACKAGE_INIT@
+
+file(GLOB _modules "@PACKAGE_PYNCPP_MODULE_DIR@/*.cmake")
+
+foreach(_module ${_modules})
+    include(${_module})
+endforeach()
+
+set(PYNCPP_Qt5_FOUND @PYNCPP_QT5_SUPPORT@)
+set(PYNCPP_SWIG_FOUND @PYNCPP_SWIG_SUPPORT@)
+
+if(PYNCPP_SWIG_FOUND)
+    cmake_policy(SET CMP0078 NEW) # Standard SWIG target names
+    cmake_policy(SET CMP0086 NEW) # Pass -module option to SWIG
+    find_dependency(SWIG @PYNCPP_SWIG_VERSION@ REQUIRED COMPONENTS python)
+    include(${SWIG_USE_FILE})
+endif()
+
+set(PYNCPP_PYTHON_VERSION_MAJOR @PYNCPP_PYTHON_VERSION_MAJOR@)
+set(PYNCPP_PYTHON_VERSION_MINOR @PYNCPP_PYTHON_VERSION_MINOR@)
+set(PYNCPP_PYTHON_VERSION_PATCH @PYNCPP_PYTHON_VERSION_PATCH@)
+set(PYNCPP_PYTHON_SHORT_VERSION "${PYNCPP_PYTHON_VERSION_MAJOR}.${PYNCPP_PYTHON_VERSION_MINOR}")
+set(PYNCPP_PYTHON_VERSION "${PYNCPP_PYTHON_SHORT_VERSION}.${PYNCPP_PYTHON_VERSION_PATCH}")
+
+if(PYNCPP_FIND_REQUIRED_CPP_API)
+    include(@PACKAGE_PYNCPP_EXPORT_FILE@)
+    set(PYNCPP_CPP_API_LIBRARY pyncpp_cpp_api)
+    set(PYNCPP_CPP_API_FOUND TRUE)
+endif()
+
+set(PYNCPP_PYTHON_DIR @PACKAGE_PYNCPP_PYTHON_DIR@)
+
+if(NOT TARGET pyncpp_python_executable)
+    if(UNIX)
+        PYNCPP_import_python_executable_unix(pyncpp_python_executable INSTALLED @installed@)
+    else()
+    endif()
+    set(PYNCPP_PYTHON_EXECUTABLE pyncpp_python_executable)
+endif()
+
+if(NOT TARGET pyncpp_python_library)
+    if(UNIX)
+        PYNCPP_import_python_library_unix(pyncpp_python_library INSTALLED @installed@)
+    else()
+    endif()
+    set(PYNCPP_PYTHON_LIBRARY pyncpp_python_library)
+endif()
+
+set(PYNCPP_FOUND TRUE)
+check_required_components(PYNCPP)
