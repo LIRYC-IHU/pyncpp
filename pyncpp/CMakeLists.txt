@@ -9,19 +9,12 @@ option(PYNCPP_BUILD_CPP_API "Build the C++ API provided by PYNCPP" ON)
 
 option(PYNCPP_QT5_SUPPORT "Include support for Qt5." ON)
 
-option(PYNCPP_SWIG_SUPPORT "Include support for SWIG bindings." OFF)
-
 ################################################################################
 # Dependencies
 ################################################################################
 
 if(PYNCPP_QT5_SUPPORT)
     find_package(Qt5 REQUIRED COMPONENTS Core Widgets)
-endif()
-
-if(PYNCPP_SWIG_SUPPORT)
-    set(PYNCPP_SWIG_VERSION 4.0 CACHE STRING "SWIG version to use for bindings.")
-    find_package(SWIG ${PYNCPP_SWIG_VERSION} REQUIRED COMPONENTS python)
 endif()
 
 ################################################################################
@@ -45,13 +38,6 @@ set(cmake_args
 
 if(PYNCPP_QT5_SUPPORT)
     list(APPEND cmake_args -D "Qt5_DIR:PATH=${Qt5_DIR}")
-endif()
-
-if(PYNCPP_SWIG_SUPPORT)
-    list(APPEND cmake_args
-        -D "PYNCPP_SWIG_VERSION:STRING=${PYNCPP_SWIG_VERSION}"
-        -D "SWIG_EXECUTABLE:PATH=${SWIG_EXECUTABLE}"
-        )
 endif()
 
 set(prefix "${CMAKE_CURRENT_BINARY_DIR}")

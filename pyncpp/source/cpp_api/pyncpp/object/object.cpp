@@ -88,7 +88,6 @@ Object::Object(const char* value) :
     internalSetReference(reference);
 }
 
-#if PYNCPP_SWIG_SUPPORT
 Object::Object(QString value) :
     d(new ObjectPrivate)
 {
@@ -103,7 +102,6 @@ Object::Object(QString value) :
     PYNCPP_RELEASE_GIL;
     internalSetReference(reference);
 }
-#endif // PYNCPP_SWIG_SUPPORT
 
 Object::~Object()
 {

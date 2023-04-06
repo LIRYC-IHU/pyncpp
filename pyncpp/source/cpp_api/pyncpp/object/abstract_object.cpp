@@ -79,13 +79,11 @@ AttributeAccessor AbstractObject::attribute(const char* name)
     return AttributeAccessor(*this, name);
 }
 
-#if PYNCPP_SWIG_SUPPORT
 QList<QString> AbstractObject::dir() const
 {
     Object dir = cpythonCall(PyObject_Dir, **this);
     return dir.toCPP<QList<QString> >();
 }
-#endif // PYNCPP_SWIG_SUPPORT
 
 AbstractObject::operator bool() const
 {
@@ -254,18 +252,17 @@ bool AbstractObject::isSubClass(const AbstractObject& type) const
     return cpythonCall(PyObject_IsSubclass, **this, *type);
 }
 
-//void* AbstractObject::cppPointer() const
-//{
-//    void* result = nullptr;
-//    SwigPyObject* swigPyObject = SWIG_Python_GetSwigThis(const_cast<PyObject*>(**this));
+void* AbstractObject::cppPointer() const
+{
+    void* result = nullptr;
 
-//    if (swigPyObject)
-//    {
-//        result = swigPyObject->ptr;
-//    }
+    if (PyCapsule_CheckExact(**this))
+    {
+        result = cpythonCall(PyCapsule_GetPointer, **this, nullptr);
+    }
 
-//    return result;
-//}
+    return result;
+}
 
 void AbstractObject::unsupportedFunctionError(const char* functionName) const
 {

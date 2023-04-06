@@ -24,15 +24,9 @@ project(pyncpp VERSION "${PYNCPP_VERSION}")
 find_package(PYNCPP REQUIRED OPTIONAL_COMPONENTS Qt5 SWIG)
 
 set(PYNCPP_QT5_SUPPORT ${PYNCPP_Qt5_FOUND})
-set(PYNCPP_SWIG_SUPPORT ${PYNCPP_SWIG_FOUND})
 
 if(PYNCPP_QT5_SUPPORT)
     find_package(Qt5 REQUIRED COMPONENTS Core Widgets)
-endif()
-
-if(PYNCPP_SWIG_SUPPORT)
-    find_package(SWIG ${PYNCPP_SWIG_VERSION} REQUIRED COMPONENTS python)
-    include(${SWIG_USE_FILE})
 endif()
 
 ################################################################################

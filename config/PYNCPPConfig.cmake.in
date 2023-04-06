@@ -12,14 +12,6 @@ foreach(_module ${_modules})
 endforeach()
 
 set(PYNCPP_Qt5_FOUND @PYNCPP_QT5_SUPPORT@)
-set(PYNCPP_SWIG_FOUND @PYNCPP_SWIG_SUPPORT@)
-
-if(PYNCPP_SWIG_FOUND)
-    cmake_policy(SET CMP0078 NEW) # Standard SWIG target names
-    cmake_policy(SET CMP0086 NEW) # Pass -module option to SWIG
-    find_dependency(SWIG @PYNCPP_SWIG_VERSION@ REQUIRED COMPONENTS python)
-    include(${SWIG_USE_FILE})
-endif()
 
 set(PYNCPP_PYTHON_VERSION_MAJOR @PYNCPP_PYTHON_VERSION_MAJOR@)
 set(PYNCPP_PYTHON_VERSION_MINOR @PYNCPP_PYTHON_VERSION_MINOR@)
