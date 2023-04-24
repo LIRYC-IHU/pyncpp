@@ -11,8 +11,4 @@
 #include "pyncpp/manager.h"
 #include "pyncpp/object.h"
 
-#if PYNCPP_SWIG_SUPPORT
-#include "pyncpp/external/swig.h"
-#endif  // PYNCPP_SWIG_SUPPORT
-
 #endif // PYNCPP_H

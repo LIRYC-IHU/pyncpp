@@ -13,6 +13,7 @@
 #include <iostream>
 #endif
 
+#include "error/exception_types.h"
 #include "external/cpython.h"
 
 namespace pyncpp
@@ -117,7 +118,7 @@ void Manager::initializeInterpreter(const char* pythonHome)
 
 void Manager::initializeAPI()
 {
-    //internal::initializeExceptions();
+    internal::initializeExceptions();
 }
 
 void Manager::finalize()

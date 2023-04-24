@@ -25,7 +25,13 @@ endif()
 # Dependencies
 ################################################################################
 
-set(OPENSSL_ROOT_DIR "" CACHE PATH "Root directory of OpenSSL.")
+if(APPLE)
+    set(default_root_dir "/usr/local/opt/openssl@1.1")
+else()
+    set(default_root_dir)
+endif()
+
+set(OPENSSL_ROOT_DIR "${default_root_dir}" CACHE PATH "Root directory of OpenSSL.")
 
 find_package(OpenSSL COMPONENTS SSL)
 
@@ -74,11 +80,13 @@ if(GENERATOR_IS_MULTI_CONFIG)
     set(executable_path)
     foreach(config ${CMAKE_CONFIGURATION_TYPES})
         string(APPEND python_dir $<$<CONFIG:${config}>:${PYNCPP_PYTHON_DIR}/${config}>)
-        string(APPEND executable_path $<$<CONFIG:${config}>:${PYNCPP_PYTHON_DIR}/${config}/python${PYNCPP_PYTHON_SHORT_VERSION}>)
+        string(APPEND executable_path $<$<CONFIG:${config}>:${PYNCPP_PYTHON_DIR}/${config}/bin/python${PYNCPP_PYTHON_SHORT_VERSION}>)
+        string(APPEND library_path $<$<CONFIG:${config}>:${PYNCPP_PYTHON_DIR}/${config}/lib/libpython${PYNCPP_PYTHON_SHORT_VERSION}${CMAKE_SHARED_LIBRARY_SUFFIX}>)
     endforeach()
 else()
     set(python_dir "${PYNCPP_PYTHON_DIR}")
     set(executable_path "${PYNCPP_PYTHON_DIR}/bin/python${PYNCPP_PYTHON_SHORT_VERSION}")
+    set(library_path "${PYNCPP_PYTHON_DIR}/lib/libpython${PYNCPP_PYTHON_SHORT_VERSION}${CMAKE_SHARED_LIBRARY_SUFFIX}")
 endif()
 
 if(APPLE)

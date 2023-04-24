@@ -67,11 +67,9 @@ public:
     bool hasAttribute(const char* name) const;
     AttributeAccessor attribute(const char* name);
 
-    #if PYNCPP_SWIG_SUPPORT
     /// Equivalent to the Python expression 'dir(o)'
     ///
     QList<QString> dir() const;
-    #endif // PYNCPP_SWIG_SUPPORT
 
     operator bool() const;
     bool operator!() const;
@@ -118,13 +116,13 @@ public:
     template <class TYPE>
     TYPE toCPP() const;
 
-//    /// If this object is a SWIG-wrapped C++ object, returns a pointer to the
-//    /// object. The caller does not own the pointer.
-//    ///
-//    template <class TYPE>
-//    TYPE cppPointer() const;
+    /// If this object is a wrapped C++ pointer, returns the pointer, otherwise
+    /// returns nullptr. The caller does not own the pointer.
+    ///
+    template <class TYPE>
+    TYPE cppPointer() const;
 
-//    void* cppPointer() const;
+    void* cppPointer() const;
 
     // Due to ciruclar dependency issues, the following three template functions
     // are defined in the header file of their respective return types.
@@ -160,11 +158,11 @@ TYPE AbstractObject::toCPP() const
     return result;
 }
 
-//template <class TYPE>
-//TYPE AbstractObject::cppPointer() const
-//{
-//    return dynamic_cast<TYPE>(cppPointer());
-//}
+template <class TYPE>
+TYPE AbstractObject::cppPointer() const
+{
+    return dynamic_cast<TYPE>(cppPointer());
+}
 
 } // namespace pyncpp
 

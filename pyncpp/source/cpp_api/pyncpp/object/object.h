@@ -64,11 +64,9 @@ public:
     ///
     Object(const char* value);
 
-#if PYNCPP_SWIG_SUPPORT
     /// Creates a wrapped Python string.
     ///
     Object(QString value);
-#endif // PYNCPP_SWIG_SUPPORT
 
     virtual ~Object();
 

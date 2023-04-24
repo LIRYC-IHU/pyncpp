@@ -1,11 +1,10 @@
-// Copyright (c) 2022 IHU Liryc, Université de Bordeaux, Inria.
+// Copyright (c) 2022-2023 IHU Liryc, Université de Bordeaux, Inria.
 // License: BSD-3-Clause
 
 #include "qvariant.h"
 
 #include "../conversion.h"
 #include "../error.h"
-#include "../external/swig.h"
 
 bool pyncppToPython(const QVariant& value, PyObject** output)
 {
@@ -50,15 +49,16 @@ bool pyncppToPython(const QVariant& value, PyObject** output)
         }
         case QMetaType::QObjectStar:
         {
-            *output = pyncpp::wrapObjectWithSWIG(value.value<QObject*>());
-            return *output;
+            return pyncppToPython(value.value<QObject*>(), output);
         }
         default:
-            QVariant* valueCopy = new QVariant(value);
-            *output = pyncpp::wrapObjectWithSWIG(valueCopy, "QVariant*", true);
-            return *output;
+            QString message = QString("Cannot convert QVariant of type %1 to Python.")
+                              .arg(value.typeName());
+            pyncpp::raiseError<pyncpp::TypeError>(qUtf8Printable(message));
         }
     }
+
+    return false;
 }
 
 template <class TYPE>
@@ -106,30 +106,6 @@ bool pyncppToCPP(PyObject* object, QVariant& output)
     {
         success = pyncppToCPP<QList<QVariant> >(object, output);
     }
-//    else if (PyDict_Check(object))
-//    {
-//        success = pyncppToCPP<QHash<QString, QVariant> >(object, output);
-//    }
-//    else if (pyncpp::isSWIGWrappedObject(object, "QObject*"))
-//    {
-//        QObject* value = (QObject*)pyncpp::extractSWIGWrappedObject(object);
-
-//        if (value)
-//        {
-//            output = QVariant::fromValue<QObject*>(value);
-//            success = true;
-//        }
-//    }
-//    else if (pyncpp::isSWIGWrappedObject(object, "QVariant*"))
-//    {
-//        QVariant* value = (QVariant*)pyncpp::extractSWIGWrappedObject(object);
-
-//        if (value)
-//        {
-//            output = value;
-//            success = true;
-//        }
-//    }
     else
     {
         QString message = QString("Cannot convert Python object of type %1 to QVariant.")
