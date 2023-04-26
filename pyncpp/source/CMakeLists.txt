@@ -21,9 +21,9 @@ project(pyncpp VERSION "${PYNCPP_VERSION}")
 # Dependencies
 ################################################################################
 
-find_package(PYNCPP REQUIRED OPTIONAL_COMPONENTS Qt5 SWIG)
+find_package(pyncpp REQUIRED OPTIONAL_COMPONENTS Qt5 SWIG)
 
-set(PYNCPP_QT5_SUPPORT ${PYNCPP_Qt5_FOUND})
+set(PYNCPP_QT5_SUPPORT ${pyncpp_Qt5_FOUND})
 
 if(PYNCPP_QT5_SUPPORT)
     find_package(Qt5 REQUIRED COMPONENTS Core Widgets)
