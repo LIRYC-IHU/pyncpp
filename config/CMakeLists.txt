@@ -17,13 +17,13 @@ set(PYNCPP_EXPORT_FILE share/pyncpp/pyncpp.cmake)
 
 set(installed FALSE)
 
-configure_package_config_file("${CMAKE_CURRENT_LIST_DIR}/PYNCPPConfig.cmake.in" "${PROJECT_BINARY_DIR}/PYNCPPConfig.cmake"
+configure_package_config_file("${CMAKE_CURRENT_LIST_DIR}/pyncppConfig.cmake.in" "${PROJECT_BINARY_DIR}/pyncppConfig.cmake"
     INSTALL_PREFIX "${PROJECT_BINARY_DIR}"
     INSTALL_DESTINATION "${PROJECT_BINARY_DIR}"
     PATH_VARS ${path_vars}
     )
 
-write_basic_package_version_file("${PROJECT_BINARY_DIR}/PYNCPPConfigVersion.cmake"
+write_basic_package_version_file("${PROJECT_BINARY_DIR}/pyncppConfigVersion.cmake"
     VERSION "@PROJECT_VERSION_MAJOR@.@PROJECT_VERSION_MINOR@.@PROJECT_VERSION_PATCH@"
     COMPATIBILITY SameMinorVersion
     )
@@ -37,22 +37,22 @@ set(PYNCPP_PYTHON_DIR ${PYNCPP_PYTHON_INSTALL_DESTINATION})
 
 set(installed TRUE)
 
-configure_package_config_file("${CMAKE_CURRENT_LIST_DIR}/PYNCPPConfig.cmake.in" "${PROJECT_BINARY_DIR}/share/PYNCPPConfig-install.cmake"
+configure_package_config_file("${CMAKE_CURRENT_LIST_DIR}/pyncppConfig.cmake.in" "${PROJECT_BINARY_DIR}/share/pyncppConfig-install.cmake"
     INSTALL_DESTINATION share/pyncpp
     PATH_VARS ${path_vars}
     )
 
-write_basic_package_version_file("${PROJECT_BINARY_DIR}/share/PYNCPPConfigVersion-install.cmake"
+write_basic_package_version_file("${PROJECT_BINARY_DIR}/share/pyncppConfigVersion-install.cmake"
     VERSION "@PROJECT_VERSION_MAJOR@.@PROJECT_VERSION_MINOR@.@PROJECT_VERSION_PATCH@"
     COMPATIBILITY SameMinorVersion
     )
 
-install(FILES "${PROJECT_BINARY_DIR}/share/PYNCPPConfig-install.cmake"
+install(FILES "${PROJECT_BINARY_DIR}/share/pyncppConfig-install.cmake"
     DESTINATION share/pyncpp
-    RENAME "PYNCPPConfig.cmake"
+    RENAME "pyncppConfig.cmake"
     )
 
-install(FILES "${PROJECT_BINARY_DIR}/share/PYNCPPConfigVersion-install.cmake"
+install(FILES "${PROJECT_BINARY_DIR}/share/pyncppConfigVersion-install.cmake"
     DESTINATION share/pyncpp
-    RENAME "PYNCPPConfigVersion.cmake"
+    RENAME "pyncppConfigVersion.cmake"
     )

@@ -1,0 +1,47 @@
+# Copyright (c) 2022-2023 IHU Liryc, Université de Bordeaux, Inria.
+# License: BSD-3-Clause
+
+@PACKAGE_INIT@
+
+file(GLOB _modules "@PACKAGE_PYNCPP_MODULE_DIR@/*.cmake")
+
+foreach(_module ${_modules})
+    include(${_module})
+endforeach()
+
+set(pyncpp_Qt5_FOUND @PYNCPP_QT5_SUPPORT@)
+
+set(pyncpp_PYTHON_VERSION_MAJOR @PYNCPP_PYTHON_VERSION_MAJOR@)
+set(pyncpp_PYTHON_VERSION_MINOR @PYNCPP_PYTHON_VERSION_MINOR@)
+set(pyncpp_PYTHON_VERSION_PATCH @PYNCPP_PYTHON_VERSION_PATCH@)
+set(pyncpp_PYTHON_SHORT_VERSION "${pyncpp_PYTHON_VERSION_MAJOR}.${pyncpp_PYTHON_VERSION_MINOR}")
+set(pyncpp_PYTHON_VERSION "${pyncpp_PYTHON_SHORT_VERSION}.${pyncpp_PYTHON_VERSION_PATCH}")
+
+if(pyncpp_FIND_REQUIRED_CPP_API)
+    include(@PACKAGE_PYNCPP_EXPORT_FILE@)
+    set(pyncpp_CPP_API_LIBRARY pyncpp_cpp_api)
+    set(pyncpp_CPP_API_FOUND TRUE)
+endif()
+
+set(pyncpp_PYTHON_DIR @PACKAGE_PYNCPP_PYTHON_DIR@)
+
+if(NOT TARGET pyncpp_python_executable)
+    if(UNIX)
+        pyncpp_import_python_executable_unix(pyncpp_python_executable INSTALLED @installed@)
+    else()
+        pyncpp_import_python_executable_windows(pyncpp_python_executable)
+    endif()
+    set(pyncpp_PYTHON_EXECUTABLE pyncpp_python_executable)
+endif()
+
+if(NOT TARGET pyncpp_python_library)
+    if(UNIX)
+        pyncpp_import_python_library_unix(pyncpp_python_library INSTALLED @installed@)
+    else()
+        pyncpp_import_python_library_windows(pyncpp_python_library)
+    endif()
+    set(pyncpp_PYTHON_LIBRARY pyncpp_python_library)
+endif()
+
+set(pyncpp_FOUND TRUE)
+check_required_components(pyncpp)

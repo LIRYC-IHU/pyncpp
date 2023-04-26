@@ -88,7 +88,7 @@ target_include_directories(pyncpp_cpp_api
 ################################################################################
 
 target_link_libraries(pyncpp_cpp_api PUBLIC
-    ${PYNCPP_PYTHON_LIBRARY}
+    ${pyncpp_PYTHON_LIBRARY}
     )
 
 target_link_libraries(pyncpp_cpp_api PRIVATE
