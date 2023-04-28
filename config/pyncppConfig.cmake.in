@@ -24,6 +24,7 @@ if(pyncpp_FIND_REQUIRED_CPP_API)
 endif()
 
 set(pyncpp_PYTHON_DIR @PACKAGE_PYNCPP_PYTHON_DIR@)
+set(pyncpp_PYTHON_INSTALL_DESTINATION @PYNCPP_PYTHON_INSTALL_DESTINATION@)
 
 if(NOT TARGET pyncpp_python_executable)
     if(UNIX)

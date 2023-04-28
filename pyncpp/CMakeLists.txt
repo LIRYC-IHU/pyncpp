@@ -40,6 +40,10 @@ if(PYNCPP_QT5_SUPPORT)
     list(APPEND cmake_args -D "Qt5_DIR:PATH=${Qt5_DIR}")
 endif()
 
+if(UNIX AND NOT APPLE)
+    list(APPEND cmake_args -D "CMAKE_INSTALL_RPATH:PATH=\$ORIGIN/../${PYNCPP_PYTHON_INSTALL_DESTINATION}")
+endif()
+
 set(prefix "${CMAKE_CURRENT_BINARY_DIR}")
 
 ################################################################################
