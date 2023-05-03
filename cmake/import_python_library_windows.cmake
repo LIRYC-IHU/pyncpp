@@ -7,19 +7,8 @@ macro(pyncpp_import_python_library_windows target_name)
 
     set(version ${pyncpp_PYTHON_VERSION_MAJOR}${pyncpp_PYTHON_VERSION_MINOR})
 
-    if(CMAKE_BUILD_TYPE)
-        if(CMAKE_BUILD_TYPE STREQUAL "Debug")
-            set(suffix "_d")
-        else()
-            set(suffix "")
-        endif()
-
-        set_target_properties(${target_name} PROPERTIES
-            IMPORTED_LOCATION "${pyncpp_PYTHON_DIR}/python${version}${suffix}.dll"
-            IMPORTED_IMPLIB "${pyncpp_PYTHON_DIR}/libs/python${version}${suffix}.lib"
-            )
-    else()
-        foreach(config ${CMAKE_CONFIGURATION_TYPES})
+    if(CMAKE_CONFIGURATION_TYPES)
+	    foreach(config ${CMAKE_CONFIGURATION_TYPES})
             string(TOUPPER ${config} CONFIG)
 
             if(config STREQUAL "Debug")
@@ -32,7 +21,20 @@ macro(pyncpp_import_python_library_windows target_name)
                 IMPORTED_LOCATION_${CONFIG} "${pyncpp_PYTHON_DIR}/python${version}${suffix}.dll"
                 IMPORTED_IMPLIB_${CONFIG} "${pyncpp_PYTHON_DIR}/libs/python${version}${suffix}.lib"
                 )
+				
+			message(${pyncpp_PYTHON_DIR}/libs/python${version}${suffix}.lib)
         endforeach()
+    else()
+        if(CMAKE_BUILD_TYPE STREQUAL "Debug")
+            set(suffix "_d")
+        else()
+            set(suffix "")
+        endif()
+
+        set_target_properties(${target_name} PROPERTIES
+            IMPORTED_LOCATION "${pyncpp_PYTHON_DIR}/python${version}${suffix}.dll"
+            IMPORTED_IMPLIB "${pyncpp_PYTHON_DIR}/libs/python${version}${suffix}.lib"
+            )
     endif()
 
     target_include_directories(${target_name} INTERFACE "${pyncpp_PYTHON_DIR}/include")

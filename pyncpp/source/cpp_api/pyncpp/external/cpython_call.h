@@ -6,6 +6,7 @@
 
 #include "../error/error_handling.h"
 
+#include <type_traits>
 #define PYNCPP_GIL_STATE _pyncpp_gilState
 #define PYNCPP_ACQUIRE_GIL PyGILState_STATE PYNCPP_GIL_STATE = PyGILState_Ensure()
 #define PYNCPP_RELEASE_GIL PyGILState_Release(PYNCPP_GIL_STATE)

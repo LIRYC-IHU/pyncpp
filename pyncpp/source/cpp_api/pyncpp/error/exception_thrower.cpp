@@ -26,7 +26,7 @@ PyObject* findRegisteredBaseClass(PyObject* nativeClass)
 
     if (!PyErr_Occurred() && PyTuple_Check(typeLineage))
     {
-        ssize_t lineageSize = PyTuple_GET_SIZE(typeLineage);
+        Py_ssize_t lineageSize = PyTuple_GET_SIZE(typeLineage);
 
         for (int i = 1; i < lineageSize; i++)
         {

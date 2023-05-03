@@ -23,7 +23,7 @@ bool pyncppToPython(const QList<PyObject*>& qList, PyObject** output)
 
     if (*output)
     {
-        for (ssize_t i = 0; i < qList.length(); i++)
+        for (Py_ssize_t i = 0; i < qList.length(); i++)
         {
             PyObject* item = qList.at(i);
             Py_INCREF(item);
@@ -41,11 +41,11 @@ bool pyncppToPython(const QList<PyObject*>& qList, PyObject** output)
 bool pyncppToCPP(const PyObject* object, QList<PyObject*>& output)
 {
     bool success = true;
-    ssize_t numItems = PySequence_Size(const_cast<PyObject*>(object));
+    Py_ssize_t numItems = PySequence_Size(const_cast<PyObject*>(object));
 
     if (numItems != -1)
     {
-        for (ssize_t i = 0; i < numItems; i++)
+        for (Py_ssize_t i = 0; i < numItems; i++)
         {
             PyObject* item = PySequence_GetItem(const_cast<PyObject*>(object), i);
 

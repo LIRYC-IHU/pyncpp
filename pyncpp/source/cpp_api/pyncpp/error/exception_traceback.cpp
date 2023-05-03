@@ -48,7 +48,7 @@ const char* getTracebackItem(PyObject* tracebackList, Py_ssize_t index)
 std::string concatenateTracebackList(PyObject* tracebackList)
 {
     std::string result;
-    ssize_t numTracebackItems = PyObject_Length(tracebackList);
+    Py_ssize_t numTracebackItems = PyObject_Length(tracebackList);
 
     for (Py_ssize_t i = 0; i < numTracebackItems; i++)
     {
