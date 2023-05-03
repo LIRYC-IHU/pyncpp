@@ -7,16 +7,6 @@
 
 option(PYNCPP_BUILD_CPP_API "Build the C++ API provided by PYNCPP" ON)
 
-option(PYNCPP_QT5_SUPPORT "Include support for Qt5." ON)
-
-################################################################################
-# Dependencies
-################################################################################
-
-if(PYNCPP_QT5_SUPPORT)
-    find_package(Qt5 REQUIRED COMPONENTS Core Widgets)
-endif()
-
 ################################################################################
 # Configuration
 ################################################################################
@@ -41,7 +31,7 @@ if(PYNCPP_QT5_SUPPORT)
 endif()
 
 if(UNIX AND NOT APPLE)
-    list(APPEND cmake_args -D "CMAKE_INSTALL_RPATH:PATH=\$ORIGIN/../${PYNCPP_PYTHON_INSTALL_DESTINATION}")
+    list(APPEND cmake_args -D "CMAKE_INSTALL_RPATH:PATH=\$ORIGIN/../${PYNCPP_PYTHON_INSTALL_DESTINATION}/lib")
 endif()
 
 set(prefix "${CMAKE_CURRENT_BINARY_DIR}")
