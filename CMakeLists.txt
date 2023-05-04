@@ -75,6 +75,8 @@ endif()
 
 option(PYNCPP_QT5_SUPPORT "Include support for Qt5." ON)
 
+option(PYNCPP_BUILD_EXAMPLES "Build example project" OFF)
+
 ################################################################################
 # Dependencies
 ################################################################################
@@ -90,7 +92,10 @@ endif()
 add_subdirectory(python)
 add_subdirectory(pyncpp)
 add_subdirectory(config)
-add_subdirectory(examples)
+
+if(PYNCPP_BUILD_EXAMPLES)
+    add_subdirectory(examples)
+endif()
 
 ################################################################################
 # Install

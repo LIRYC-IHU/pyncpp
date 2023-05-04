@@ -5,8 +5,6 @@
 # Settings
 ################################################################################
 
-option(PYNCPP_BUILD_EXAMPLES "Build example project" OFF)
-
 if(APPLE)
     option(PYNCPP_EXAMPLES_FRAMEWORKS "Build examples as frameworks." ON)
 endif()
