@@ -7,8 +7,6 @@ cmake_policy(SET CMP0011 NEW) # Policy PUSH/POP in included scripts
 cmake_policy(SET CMP0048 NEW) # Project command manages version variables
 cmake_policy(SET CMP0057 NEW) # IN_LIST operator
 cmake_policy(SET CMP0068 NEW) # RPATH settings on macOS do not affect install_name
-cmake_policy(SET CMP0078 NEW) # Standard SWIG target names
-cmake_policy(SET CMP0086 NEW) # Pass -module option to SWIG
 
 ################################################################################
 # Project

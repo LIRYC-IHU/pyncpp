@@ -73,7 +73,15 @@ if(NOT CMAKE_BUILD_TYPE)
     set(CMAKE_BUILD_TYPE RelWithDebInfo)
 endif()
 
-option(PYNCPP_BUILD_EXAMPLES "Build example project" OFF)
+option(PYNCPP_QT5_SUPPORT "Include support for Qt5." ON)
+
+################################################################################
+# Dependencies
+################################################################################
+
+if(PYNCPP_QT5_SUPPORT)
+    find_package(Qt5 REQUIRED COMPONENTS Core Widgets)
+endif()
 
 ################################################################################
 # Subdirectories
@@ -82,28 +90,7 @@ option(PYNCPP_BUILD_EXAMPLES "Build example project" OFF)
 add_subdirectory(python)
 add_subdirectory(pyncpp)
 add_subdirectory(config)
-
-################################################################################
-# Examples
-################################################################################
-
-if(PYNCPP_BUILD_EXAMPLES)
-    ExternalProject_Add(pyncpp_examples
-        DEPENDS pyncpp
-        DOWNLOAD_COMMAND ""
-        INSTALL_COMMAND ""
-        CMAKE_ARGS
-        -D "CMAKE_BUILD_TYPE:STRING=${CMAKE_BUILD_TYPE}"
-        -D "PYNCPP_DIR:PATH=${PROJECT_BINARY_DIR}"
-        -D "PYNCPP_VERSION:STRING=${PYNCPP_VERSION}"
-        SOURCE_DIR "${CMAKE_CURRENT_SOURCE_DIR}/examples"
-        DOWNLOAD_DIR "${CMAKE_CURRENT_BINARY_DIR}/examples/download"
-        BINARY_DIR "${CMAKE_CURRENT_BINARY_DIR}/examples"
-        INSTALL_DIR "${CMAKE_CURRENT_BINARY_DIR}/examples/install"
-        STAMP_DIR "${CMAKE_CURRENT_BINARY_DIR}/examples/stamp"
-        TMP_DIR "${CMAKE_CURRENT_BINARY_DIR}/examples/tmp"
-        )
-endif()
+add_subdirectory(examples)
 
 ################################################################################
 # Install

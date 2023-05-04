@@ -1,79 +1,66 @@
 # Copyright (c) 2022-2023 IHU Liryc, Université de Bordeaux, Inria.
 # License: BSD-3-Clause
 
-cmake_minimum_required(VERSION 3.19)
-
-cmake_policy(SET CMP0011 NEW) # Policy PUSH/POP in included scripts
-cmake_policy(SET CMP0048 NEW) # Project command manages version variables
-cmake_policy(SET CMP0057 NEW) # IN_LIST operator
-cmake_policy(SET CMP0068 NEW) # RPATH settings on macOS do not affect install_name
-
-################################################################################
-# Project
-################################################################################
-
-project(pyncpp_examples VERSION "${PYNCPP_VERSION}")
-
 ################################################################################
 # Settings
 ################################################################################
 
-set(CMAKE_CXX_STANDARD 17)
-set(CMAKE_CXX_STANDARD_REQUIRED ON)
-
-if(CMAKE_CONFIGURATION_TYPES)
-    foreach(config ${CMAKE_CONFIGURATION_TYPES})
-        set(CMAKE_RUNTIME_OUTPUT_DIRECTORY_${config} ${PROJECT_BINARY_DIR}/${config}/bin)
-        set(CMAKE_LIBRARY_OUTPUT_DIRECTORY_${config} ${PROJECT_BINARY_DIR}/${config}/lib)
-    endforeach()
-else()
-    if(NOT DEFINED CMAKE_BUILD_TYPE)
-        set(CMAKE_BUILD_TYPE RelWithDebInfo)
-    endif()
-
-    set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${PROJECT_BINARY_DIR}/${CMAKE_BUILD_TYPE}/bin)
-    set(CMAKE_LIBRARY_OUTPUT_DIRECTORY ${PROJECT_BINARY_DIR}/${CMAKE_BUILD_TYPE}/lib)
-endif()
+option(PYNCPP_BUILD_EXAMPLES "Build example project" OFF)
 
 if(APPLE)
-    option(PYNCPP_EXAMPLES_FRAMEWORKS "Build frameworks." ON)
+    option(PYNCPP_EXAMPLES_FRAMEWORKS "Build examples as frameworks." ON)
 endif()
 
 ################################################################################
 # Dependencies
 ################################################################################
 
-find_package(PYNCPP REQUIRED COMPONENTS Qt5)
-
-if(PYNCPP_Qt5_FOUND)
+if(PYNCPP_QT5_SUPPORT)
     find_package(Qt5 REQUIRED COMPONENTS Core Widgets)
-    get_target_property(_qmake_executable Qt5::qmake IMPORTED_LOCATION)
-    get_filename_component(_qt_bin_dir "${_qmake_executable}" DIRECTORY)
-    find_program(MACDEPLOYQT_EXECUTABLE macdeployqt HINTS "${_qt_bin_dir}")
 endif()
 
 ################################################################################
-# Subdirectories
+# Configuration
 ################################################################################
 
-if(PYNCPP_Qt5_FOUND)
-    add_subdirectory(qt_console)
+set(cmake_args
+    -D "CMAKE_MINIMUM_REQUIRED_VERSION:STRING=${CMAKE_MINIMUM_REQUIRED_VERSION}"
+    -D "CMAKE_BUILD_TYPE:PATH=${CMAKE_BUILD_TYPE}"
+    -D "CMAKE_CXX_STANDARD:STRING=${CMAKE_CXX_STANDARD}"
+    -D "CMAKE_CXX_STANDARD_REQUIRED:BOOL=${CMAKE_CXX_STANDARD_REQUIRED}"
+    -D "CMAKE_INSTALL_PREFIX:PATH=<INSTALL_DIR>"
+    -D "CMAKE_MAKE_PROGRAM:PATH=${CMAKE_MAKE_PROGRAM}"
+    -D "pyncpp_DIR:PATH=${PROJECT_BINARY_DIR}"
+    -D "PYNCPP_VERSION_MAJOR:STRING=${PYNCPP_VERSION_MAJOR}"
+    -D "PYNCPP_VERSION_MINOR:STRING=${PYNCPP_VERSION_MINOR}"
+    -D "PYNCPP_VERSION_PATCH:STRING=${PYNCPP_VERSION_PATCH}"
+    -D "PYNCPP_EXAMPLES_FRAMEWORKS:BOOL=${PYNCPP_EXAMPLES_FRAMEWORKS}"
+    )
+
+if(PYNCPP_QT5_SUPPORT)
+    list(APPEND cmake_args -D "Qt5_DIR:PATH=${Qt5_DIR}")
 endif()
 
+set(prefix "${CMAKE_CURRENT_BINARY_DIR}")
+
 ################################################################################
-# Install/packaging
+# External project
 ################################################################################
 
-if(NOT PYNCPP_EXAMPLES_FRAMEWORKS)
-    PYNCPP_install_python_modules()
+ExternalProject_Add(pyncpp_examples
+    PREFIX "${prefix}"
+    DOWNLOAD_DIR "${prefix}/download"
+    SOURCE_DIR "${CMAKE_CURRENT_SOURCE_DIR}/source"
+    BINARY_DIR "${prefix}/build"
+    STAMP_DIR "${prefix}/stamp"
+    TMP_DIR "${prefix}/tmp"
+    INSTALL_DIR "${PROJECT_BINARY_DIR}"
+    DEPENDS pyncpp
+    CMAKE_ARGS ${cmake_args}
+    )
 
-    set(CPACK_BUNDLE_NAME ${PROJECT_NAME})
+################################################################################
+# Install
+################################################################################
 
-    set(CPACK_INSTALL_CMAKE_PROJECTS
-        "${CMAKE_CURRENT_BINARY_DIR};examples;ALL;/"
-        "${PYNCPP_DIR};pyncpp;ALL;/"
-        ${CPACK_INSTALL_CMAKE_PROJECTS}
-        )
-endif()
-
-include(CPack)
+install(SCRIPT "${prefix}/build/cmake_install.cmake")
