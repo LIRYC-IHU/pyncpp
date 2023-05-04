@@ -15,7 +15,9 @@ macro(pyncpp_import_python_library_unix target_name)
     set(lib_path "lib/libpython${pyncpp_PYTHON_SHORT_VERSION}${CMAKE_SHARED_LIBRARY_SUFFIX}")
     set(include_path "include/python${pyncpp_PYTHON_SHORT_VERSION}")
 
-    if(ARG_INSTALLED OR CMAKE_BUILD_TYPE)
+    get_property(GENERATOR_IS_MULTI_CONFIG GLOBAL PROPERTY GENERATOR_IS_MULTI_CONFIG)
+
+    if(ARG_INSTALLED OR NOT GENERATOR_IS_MULTI_CONFIG)
         set_target_properties(${target_name} PROPERTIES IMPORTED_LOCATION "${pyncpp_PYTHON_DIR}/${lib_path}")
         set(include_dir "${pyncpp_PYTHON_DIR}/${include_path}")
     else()

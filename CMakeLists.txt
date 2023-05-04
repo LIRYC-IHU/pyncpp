@@ -69,11 +69,13 @@ set(CMAKE_MODULE_PATH
 
 get_property(GENERATOR_IS_MULTI_CONFIG GLOBAL PROPERTY GENERATOR_IS_MULTI_CONFIG)
 
-if(NOT CMAKE_BUILD_TYPE)
+if(NOT GENERATOR_IS_MULTI_CONFIG AND NOT CMAKE_BUILD_TYPE)
     set(CMAKE_BUILD_TYPE RelWithDebInfo)
 endif()
 
 option(PYNCPP_QT5_SUPPORT "Include support for Qt5." ON)
+
+option(PYNCPP_BUILD_EXAMPLES "Build example project" OFF)
 
 ################################################################################
 # Dependencies
@@ -90,7 +92,10 @@ endif()
 add_subdirectory(python)
 add_subdirectory(pyncpp)
 add_subdirectory(config)
-add_subdirectory(examples)
+
+if(PYNCPP_BUILD_EXAMPLES)
+    add_subdirectory(examples)
+endif()
 
 ################################################################################
 # Install

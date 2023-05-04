@@ -13,10 +13,12 @@ else()
     set(win_type WIN64)
 endif()
 
+file(TO_NATIVE_PATH "${PYNCPP_PYTHON_DIR}" native_python_dir)
+
 set(installer_args
-    /passive
+    /quiet
     InstallAllUsers=0
-    TargetDir="<INSTALL_DIR>"
+    TargetDir=${native_python_dir}
     AssociateFiles=0
     CompileAll=0
     PrependPath=0
@@ -48,11 +50,12 @@ ExternalProject_Add(pyncpp_python
     TMP_DIR "${prefix}/tmp"
     INSTALL_DIR "${PYNCPP_PYTHON_DIR}"
     URL "https://www.python.org/ftp/python/${PYNCPP_PYTHON_VERSION}/${installer}"
-    URL_MD5 ${PYNCPP_PYTHON_{win_type}_INSTALLER_${PYNCPP_PYTHON_VERSION_MAJOR}_${PYNCPP_PYTHON_VERSION_MINOR}_${PYNCPP_PYTHON_VERSION_PATCH}_MD5}
+    URL_MD5 ${PYNCPP_PYTHON_${win_type}_INSTALLER_${PYNCPP_PYTHON_VERSION_MAJOR}_${PYNCPP_PYTHON_VERSION_MINOR}_${PYNCPP_PYTHON_VERSION_PATCH}_MD5}
     DOWNLOAD_NAME "python_installer.exe"
     DOWNLOAD_NO_EXTRACT TRUE
-    CONFIGURE_COMMAND \"\"
-    INSTALL_COMMAND COMMAND ${CMAKE_COMMAND} -E env "<SOURCE_DIR>/python_installer.exe" ${installer_args}
+    CONFIGURE_COMMAND ""
+    BUILD_COMMAND ""
+    INSTALL_COMMAND COMMAND ${CMAKE_COMMAND} -E env "<DOWNLOAD_DIR>/python_installer.exe" ${installer_args}
     )
 
 ################################################################################
@@ -62,5 +65,5 @@ ExternalProject_Add(pyncpp_python
 install(DIRECTORY "${PYNCPP_PYTHON_DIR}/"
     DESTINATION ${PYNCPP_PYTHON_INSTALL_DESTINATION}
     PATTERN "*.pyc" EXCLUDE
-    PATTERN "*.exe" PERMISSIONS OWNER_READ OWNER_WRITE OWNER_EXECUTE GROUP_READ GROUP_EXECUTE WORLD_READ WORLD_EXECUTE
+    PATTERN "*.exe"
     )

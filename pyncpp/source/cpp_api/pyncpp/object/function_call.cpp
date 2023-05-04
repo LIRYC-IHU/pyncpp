@@ -1,4 +1,4 @@
-// Copyright (c) 2022 IHU Liryc, Université de Bordeaux, Inria.
+// Copyright (c) 2022-2023 IHU Liryc, Université de Bordeaux, Inria.
 // License: BSD-3-Clause
 
 #include "function_call.h"
@@ -84,11 +84,11 @@ void FunctionCall::setReference(PyObject* Object)
 PyObject* FunctionCall::evaluate() const
 {
     PyObject* result = nullptr;
-    ssize_t numArgs = PyObject_Size(*d->args);
+    Py_ssize_t numArgs = PyObject_Size(*d->args);
 
     if (!PyErr_Occurred())
     {
-        ssize_t numKwargs = PyObject_Size(*d->kwargs);
+        Py_ssize_t numKwargs = PyObject_Size(*d->kwargs);
 
         if (!PyErr_Occurred())
         {
