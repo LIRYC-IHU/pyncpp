@@ -7,8 +7,10 @@ macro(pyncpp_import_python_library_windows target_name)
 
     set(version ${pyncpp_PYTHON_VERSION_MAJOR}${pyncpp_PYTHON_VERSION_MINOR})
 
-    if(CMAKE_CONFIGURATION_TYPES)
-	    foreach(config ${CMAKE_CONFIGURATION_TYPES})
+    get_property(GENERATOR_IS_MULTI_CONFIG GLOBAL PROPERTY GENERATOR_IS_MULTI_CONFIG)
+
+    if(GENERATOR_IS_MULTI_CONFIG)
+        foreach(config ${CMAKE_CONFIGURATION_TYPES})
             string(TOUPPER ${config} CONFIG)
 
             if(config STREQUAL "Debug")
@@ -21,8 +23,6 @@ macro(pyncpp_import_python_library_windows target_name)
                 IMPORTED_LOCATION_${CONFIG} "${pyncpp_PYTHON_DIR}/python${version}${suffix}.dll"
                 IMPORTED_IMPLIB_${CONFIG} "${pyncpp_PYTHON_DIR}/libs/python${version}${suffix}.lib"
                 )
-				
-			message(${pyncpp_PYTHON_DIR}/libs/python${version}${suffix}.lib)
         endforeach()
     else()
         if(CMAKE_BUILD_TYPE STREQUAL "Debug")

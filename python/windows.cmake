@@ -13,10 +13,12 @@ else()
     set(win_type WIN64)
 endif()
 
+file(TO_NATIVE_PATH "${PYNCPP_PYTHON_DIR}" native_python_dir)
+
 set(installer_args
     /quiet
     InstallAllUsers=0
-    TargetDir=C:\\d\\FC\\testPy\\pyncpp-build\\bin
+    TargetDir=${native_python_dir}
     AssociateFiles=0
     CompileAll=0
     PrependPath=0
@@ -34,8 +36,6 @@ set(installer_args
     Include_test=0
     Include_tools=0
     )
-	
-message("${PYNCPP_PYTHON_DIR}")
 
 ################################################################################
 # External project
@@ -54,7 +54,7 @@ ExternalProject_Add(pyncpp_python
     DOWNLOAD_NAME "python_installer.exe"
     DOWNLOAD_NO_EXTRACT TRUE
     CONFIGURE_COMMAND ""
-	BUILD_COMMAND ""
+    BUILD_COMMAND ""
     INSTALL_COMMAND COMMAND ${CMAKE_COMMAND} -E env "<DOWNLOAD_DIR>/python_installer.exe" ${installer_args}
     )
 

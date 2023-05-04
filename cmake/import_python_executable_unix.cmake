@@ -12,7 +12,9 @@ macro(pyncpp_import_python_executable_unix target_name)
 
     add_executable(${target_name} IMPORTED GLOBAL)
 
-    if(ARG_INSTALLED OR CMAKE_BUILD_TYPE)
+    get_property(GENERATOR_IS_MULTI_CONFIG GLOBAL PROPERTY GENERATOR_IS_MULTI_CONFIG)
+
+    if(ARG_INSTALLED OR NOT GENERATOR_IS_MULTI_CONFIG)
         set_target_properties(${target_name} PROPERTIES IMPORTED_LOCATION "${pyncpp_PYTHON_DIR}/bin/python${pyncpp_PYTHON_SHORT_VERSION}")
     else()
         foreach(config ${CMAKE_CONFIGURATION_TYPES})
