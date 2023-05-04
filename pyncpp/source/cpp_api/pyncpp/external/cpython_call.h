@@ -1,4 +1,4 @@
-// Copyright (c) 2022 IHU Liryc, Université de Bordeaux, Inria.
+// Copyright (c) 2022-2023 IHU Liryc, Université de Bordeaux, Inria.
 // License: BSD-3-Clause
 
 #ifndef PYNCPP_CPYTHON_CALL_H
