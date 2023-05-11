@@ -122,6 +122,12 @@ if(APPLE)
     list(PREPEND post_install_arguments
         COMMAND ${CMAKE_INSTALL_NAME_TOOL} -change "${library_path}" "${relative_library_path}" "${executable_path}"
         )
+else()
+    configure_file("${CMAKE_CURRENT_SOURCE_DIR}/unix_launcher.sh.in" "${prefix}/tmp/unix_launcher.sh" @ONLY)
+    list(PREPEND post_install_arguments
+        COMMAND ${CMAKE_COMMAND} -E rename "${executable_path}" "${executable_path}_bin"
+        COMMAND ${CMAKE_COMMAND} -E copy "${prefix}/tmp/unix_launcher.sh" "${executable_path}"
+        )
 endif()
 
 ExternalProject_Add_Step(pyncpp_python post_install
