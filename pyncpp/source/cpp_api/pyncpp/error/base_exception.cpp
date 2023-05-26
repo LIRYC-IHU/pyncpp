@@ -29,6 +29,12 @@ void BaseException::raise(const char* message)
     raiseError(PyExc_BaseException, message);
 }
 
+BaseException::BaseException(const BaseException& other) :
+    d(new BaseExceptionPrivate)
+{
+    d->message = other.d->message;
+}
+
 BaseException::BaseException(const char* message) :
     d(new BaseExceptionPrivate)
 {

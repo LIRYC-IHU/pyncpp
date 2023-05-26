@@ -31,6 +31,8 @@ public:
 
     static void raise(const char* message);
 
+    BaseException(const BaseException& other);
+
     /// Temporarily creates a native Python exception and uses it to construct a
     /// C++ exception. This is intended for the wrapper code to throw exceptions
     /// as if they originated from the Python interpreter.
