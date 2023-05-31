@@ -145,3 +145,19 @@ install(DIRECTORY "${python_dir}/"
     PATTERN "*.pyc" EXCLUDE
     PATTERN "bin/*" PERMISSIONS OWNER_READ OWNER_WRITE OWNER_EXECUTE GROUP_READ GROUP_EXECUTE WORLD_READ WORLD_EXECUTE
     )
+
+if(NOT APPLE)
+    if(NOT CMAKE_OBJDUMP)
+        message(FATAL_ERROR "The objdump utility (CMAKE_OBJDUMP) is required for pyncpp installation.")
+    else()
+        install(CODE "
+            execute_process(COMMAND ${CMAKE_OBJDUMP} -p \"${library_path}\" OUTPUT_VARIABLE objdump_output)
+            string(REGEX MATCH \"SONAME *(libpython${PYNCPP_PYTHON_VERSION_MAJOR}\.${PYNCPP_PYTHON_VERSION_MINOR}\.so[0-9\.]*)\" soname_match \"\${objdump_output}\")
+            if(soname_match)
+                set(libdir \"\$ENV{DESTDIR}\${CMAKE_INSTALL_PREFIX}/lib\")
+                file(CREATE_LINK \"\${libdir}/python${PYNCPP_PYTHON_SHORT_VERSION}/lib/\${CMAKE_MATCH_1}\" \"\${libdir}/\${CMAKE_MATCH_1}\" SYMBOLIC)
+            endif()
+            "
+            )
+    endif()
+endif()
