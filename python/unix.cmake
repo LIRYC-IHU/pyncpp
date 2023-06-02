@@ -155,7 +155,7 @@ if(NOT APPLE)
             string(REGEX MATCH \"SONAME *(libpython${PYNCPP_PYTHON_VERSION_MAJOR}\.${PYNCPP_PYTHON_VERSION_MINOR}\.so[0-9\.]*)\" soname_match \"\${objdump_output}\")
             if(soname_match)
                 set(libdir \"\$ENV{DESTDIR}\${CMAKE_INSTALL_PREFIX}/lib\")
-                file(CREATE_LINK \"\${libdir}/python${PYNCPP_PYTHON_SHORT_VERSION}/lib/\${CMAKE_MATCH_1}\" \"\${libdir}/\${CMAKE_MATCH_1}\" SYMBOLIC)
+                file(CREATE_LINK \"python${PYNCPP_PYTHON_SHORT_VERSION}/lib/\${CMAKE_MATCH_1}\" \"\${libdir}/\${CMAKE_MATCH_1}\" SYMBOLIC)
             endif()
             "
             )
