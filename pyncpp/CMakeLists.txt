@@ -16,13 +16,12 @@ set(cmake_args
     -D "CMAKE_BUILD_TYPE:PATH=${CMAKE_BUILD_TYPE}"
     -D "CMAKE_CXX_STANDARD:STRING=${CMAKE_CXX_STANDARD}"
     -D "CMAKE_CXX_STANDARD_REQUIRED:BOOL=${CMAKE_CXX_STANDARD_REQUIRED}"
-    -D "CMAKE_MODULE_PATH:PATH=${PYNCPP_MODULE_DIR}"
-    -D "CMAKE_INSTALL_PREFIX:PATH=<INSTALL_DIR>"
     -D "CMAKE_MAKE_PROGRAM:PATH=${CMAKE_MAKE_PROGRAM}"
-    -D "pyncpp_DIR:PATH=${PROJECT_BINARY_DIR}"
+    -D "pyncpp_ROOT:PATH=${PROJECT_BINARY_DIR}"
     -D "PYNCPP_VERSION_MAJOR:STRING=${PYNCPP_VERSION_MAJOR}"
     -D "PYNCPP_VERSION_MINOR:STRING=${PYNCPP_VERSION_MINOR}"
     -D "PYNCPP_VERSION_PATCH:STRING=${PYNCPP_VERSION_PATCH}"
+    -D "PYNCPP_SHARE_SUBDIR:PATH=${PYNCPP_SHARE_SUBDIR}"
     -D "PYNCPP_BUILD_CPP_API:BOOL=${PYNCPP_BUILD_CPP_API}"
     )
 
@@ -47,13 +46,10 @@ ExternalProject_Add(pyncpp
     BINARY_DIR "${prefix}/build"
     STAMP_DIR "${prefix}/stamp"
     TMP_DIR "${prefix}/tmp"
-    INSTALL_DIR "${PROJECT_BINARY_DIR}"
     DEPENDS pyncpp_python
     CMAKE_ARGS ${cmake_args}
+    INSTALL_COMMAND ${CMAKE_COMMAND}
+    --install "<BINARY_DIR>"
+    --prefix "${PYNCPP_BINARY_DIR}"
+    --config $<CONFIG>
     )
-
-################################################################################
-# Install
-################################################################################
-
-install(SCRIPT "${prefix}/build/cmake_install.cmake")

@@ -101,12 +101,14 @@ target_link_libraries(pyncpp_cpp_api PRIVATE
 ################################################################################
 
 install(TARGETS pyncpp_cpp_api
-    EXPORT pyncpp
+    EXPORT pyncpp_exports
     LIBRARY
     DESTINATION "lib"
+    COMPONENT Development
     )
 
 install(DIRECTORY "${CMAKE_CURRENT_SOURCE_DIR}/"
     DESTINATION "include/pyncpp/cpp_api"
+    COMPONENT Development
     PATTERN "CMakeLists.txt" EXCLUDE
     )

@@ -60,12 +60,13 @@ project(pyncpp VERSION "${PYNCPP_VERSION}")
 set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
-set(PYNCPP_MODULE_DIR "${CMAKE_CURRENT_SOURCE_DIR}/cmake")
+set(PYNCPP_BINARY_DIR "${PROJECT_BINARY_DIR}/$<CONFIG>")
 
-set(CMAKE_MODULE_PATH
-    "${PYNCPP_MODULE_DIR}"
-    ${CMAKE_MODULE_PATH}
-    )
+if(WIN32)
+    set(PYNCPP_SHARE_SUBDIR "cmake")
+else()
+    set(PYNCPP_SHARE_SUBDIR "share/cmake/pyncpp")
+endif()
 
 get_property(GENERATOR_IS_MULTI_CONFIG GLOBAL PROPERTY GENERATOR_IS_MULTI_CONFIG)
 
@@ -96,11 +97,3 @@ add_subdirectory(config)
 if(PYNCPP_BUILD_EXAMPLES)
     add_subdirectory(examples)
 endif()
-
-################################################################################
-# Install
-################################################################################
-
-install(DIRECTORY "${PYNCPP_MODULE_DIR}"
-    DESTINATION share/pyncpp/cmake
-    )
