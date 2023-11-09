@@ -3,27 +3,21 @@
 
 include(CMakePackageConfigHelpers)
 
-set(path_vars
-    PYNCPP_MODULE_DIR
-    PYNCPP_PYTHON_DIR
-    PYNCPP_EXPORT_FILE
-    )
-
-set(PYNCPP_EXPORT_FILE share/pyncpp/pyncpp.cmake)
-
 ################################################################################
 # Build tree config files
 ################################################################################
 
-set(installed FALSE)
+set(SPECIFIC_CONFIG)
+set(PREFIX_DIR "${PROJECT_BINARY_DIR}")
+set(config_dir ${PREFIX_DIR}/${PYNCPP_SHARE_SUBDIR})
 
-configure_package_config_file("${CMAKE_CURRENT_LIST_DIR}/pyncppConfig.cmake.in" "${PROJECT_BINARY_DIR}/pyncppConfig.cmake"
-    INSTALL_PREFIX "${PROJECT_BINARY_DIR}"
-    INSTALL_DESTINATION "${PROJECT_BINARY_DIR}"
-    PATH_VARS ${path_vars}
+configure_package_config_file("${CMAKE_CURRENT_LIST_DIR}/pyncppConfig.cmake.in" "${config_dir}/pyncppConfig.cmake"
+    INSTALL_PREFIX "${PREFIX_DIR}"
+    INSTALL_DESTINATION "${PYNCPP_SHARE_SUBDIR}"
+    PATH_VARS PREFIX_DIR
     )
 
-write_basic_package_version_file("${PROJECT_BINARY_DIR}/pyncppConfigVersion.cmake"
+write_basic_package_version_file("${config_dir}/pyncppConfigVersion.cmake"
     VERSION "@PROJECT_VERSION_MAJOR@.@PROJECT_VERSION_MINOR@.@PROJECT_VERSION_PATCH@"
     COMPATIBILITY SameMinorVersion
     )
@@ -32,27 +26,29 @@ write_basic_package_version_file("${PROJECT_BINARY_DIR}/pyncppConfigVersion.cmak
 # Installed config files
 ################################################################################
 
-set(PYNCPP_MODULE_DIR share/pyncpp/cmake)
-set(PYNCPP_PYTHON_DIR ${PYNCPP_PYTHON_INSTALL_DESTINATION})
+foreach(config ${CMAKE_CONFIGURATION_TYPES} ${CMAKE_BUILD_TYPE})
 
-set(installed TRUE)
+    set(SPECIFIC_CONFIG ${config})
+    set(PREFIX_DIR "${PROJECT_BINARY_DIR}/${config}")
+    set(config_dir ${PREFIX_DIR}/${PYNCPP_SHARE_SUBDIR})
 
-configure_package_config_file("${CMAKE_CURRENT_LIST_DIR}/pyncppConfig.cmake.in" "${PROJECT_BINARY_DIR}/share/pyncppConfig-install.cmake"
-    INSTALL_DESTINATION share/pyncpp
-    PATH_VARS ${path_vars}
-    )
+    configure_package_config_file("${CMAKE_CURRENT_LIST_DIR}/pyncppConfig.cmake.in" "${config_dir}/pyncppConfig.cmake"
+        INSTALL_PREFIX "${PREFIX_DIR}"
+        INSTALL_DESTINATION "${config_dir}"
+        PATH_VARS PREFIX_DIR
+        )
 
-write_basic_package_version_file("${PROJECT_BINARY_DIR}/share/pyncppConfigVersion-install.cmake"
-    VERSION "@PROJECT_VERSION_MAJOR@.@PROJECT_VERSION_MINOR@.@PROJECT_VERSION_PATCH@"
-    COMPATIBILITY SameMinorVersion
-    )
+    write_basic_package_version_file("${config_dir}/pyncppConfigVersion.cmake"
+        VERSION "@PROJECT_VERSION_MAJOR@.@PROJECT_VERSION_MINOR@.@PROJECT_VERSION_PATCH@"
+        COMPATIBILITY SameMinorVersion
+        )
 
-install(FILES "${PROJECT_BINARY_DIR}/share/pyncppConfig-install.cmake"
-    DESTINATION share/pyncpp
-    RENAME "pyncppConfig.cmake"
-    )
+    install(FILES
+        "${config_dir}/pyncppConfig.cmake"
+        "${config_dir}/pyncppConfigVersion.cmake"
+        CONFIGURATIONS ${config}
+        DESTINATION "${PYNCPP_SHARE_SUBDIR}"
+        COMPONENT Development
+        )
 
-install(FILES "${PROJECT_BINARY_DIR}/share/pyncppConfigVersion-install.cmake"
-    DESTINATION share/pyncpp
-    RENAME "pyncppConfigVersion.cmake"
-    )
+endforeach()
