@@ -14,10 +14,6 @@ jobs:
       # Set fail-fast to false to ensure that feedback is delivered for all matrix combinations. Consider changing this to true when your workflow is stable.
       fail-fast: false
 
-      # Set up a matrix to run the following 3 configurations:
-      # 1. <Windows, Release, latest MSVC compiler toolchain on the default runner image, default generator>
-      # 2. <Linux, Release, latest GCC compiler toolchain on the default runner image, default generator>
-      # 3. <Linux, Release, latest Clang compiler toolchain on the default runner image, default generator>
       matrix:
         os: [ubuntu-latest, windows-latest, macos-latest]
         build_type: [Release]
@@ -56,6 +52,17 @@ jobs:
       shell: bash
       run: |
         echo "build-output-dir=${{ github.workspace }}/build" >> "$GITHUB_OUTPUT"
+
+    - name: Install Qt
+      uses: jurplel/install-qt-action@v3
+      with:
+        version: '5.13.1'
+        arch: 'win64_msvc2019_64'
+        dir: '${{ github.workspace }}/dependencies/'
+        archives: 'qtbase qtsvg'
+        cache: 'true'
+        cache-key-prefix: 'install-qt-action'
+        setup-python: 'false'
 
     - name: Configure CMake
       # Configure CMake in a 'build' subdirectory. `CMAKE_BUILD_TYPE` is only required if you are using a single-configuration generator such as make.
