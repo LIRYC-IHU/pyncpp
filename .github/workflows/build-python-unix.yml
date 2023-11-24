@@ -1,6 +1,7 @@
 name: Build Python on Unix
 
 on:
+  workflow_dispatch
   push:
     branches:
       - main
