@@ -40,17 +40,11 @@ jobs:
     - uses: actions/checkout@v3
 
     - name: Set reusable strings
-      # Turn repeated input strings (such as the build output directory) into step outputs. These step outputs can be used throughout the workflow file.
       id: strings
       shell: bash
-      if: runner.os == 'Windows'
       run: |
         echo "build-output-dir=${{ github.workspace }}/build" >> "$GITHUB_OUTPUT"
-        echo "python-output-dir=python310" >> "$GITHUB_OUTPUT"
-      if: runner.os != 'Windows'
-      run: |
-        echo "build-output-dir=${{ github.workspace }}/build" >> "$GITHUB_OUTPUT"
-        echo "python-output-dir=lib/python3.10" >> "$GITHUB_OUTPUT"
+        echo "python-output-dir=$([[ "$OSTYPE" == "mysys" ]] && echo "lib/python3.10" || echo "python310")" >> "$GITHUB_OUTPUT"
 
     - name: Install Qt
       uses: jurplel/install-qt-action@v3
