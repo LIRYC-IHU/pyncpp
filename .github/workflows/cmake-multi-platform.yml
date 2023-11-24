@@ -1,6 +1,7 @@
 name: CMake on multiple platforms
 
 on:
+  workflow_dispatch:
   push:
     branches: [ "main" ]
   pull_request:
@@ -60,7 +61,7 @@ jobs:
       with:
         path: |
           '${{ steps.strings.outputs.build-output-dir }}/python'
-          '${{ steps.strings.outputs.python-output-dir }}'
+          '${{ steps.strings.outputs.build-output-dir }}/${{ steps.strings.outputs.python-output-dir }}'
         key: ${{ runner.OS }}-python-cache-${{ hashFiles('python/*') }}
         restore-keys: |
           ${{ runner.OS }}-python-cache-
