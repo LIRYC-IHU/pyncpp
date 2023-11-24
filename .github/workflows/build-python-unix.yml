@@ -1,0 +1,78 @@
+name: Build Python on Unix
+
+on:
+  push:
+    branches:
+      - main
+    paths:
+      - CMakeLists.txt
+      - python/CMakeLists.txt
+      - python/unix.cmake
+      - python/relocatable_sysconfig.py
+      - python/unix_launcher.sh.in
+      - python/hash.cmake
+  pull_request:
+    branches:
+      - main
+    paths:
+      - CMakeLists.txt
+      - python/CMakeLists.txt
+      - python/unix.cmake
+      - python/relocatable_sysconfig.py
+      - python/unix_launcher.sh.in
+      - python/hash.cmake
+
+jobs:
+  build:
+    runs-on: ${{ matrix.os }}
+
+    strategy:
+      # Set fail-fast to false to ensure that feedback is delivered for all matrix combinations. Consider changing this to true when your workflow is stable.
+      fail-fast: false
+
+      matrix:
+        os: [ubuntu-latest, macos-latest]
+        build_type: [Release]
+        c_compiler: [gcc]
+        include:
+          - os: ubuntu-latest
+            c_compiler: gcc
+            cpp_compiler: g++
+          - os: macos-latest
+            c_compiler: gcc
+            cpp_compiler: gcc
+
+    steps:
+    - uses: actions/checkout@v3
+
+    - name: Set reusable strings
+      id: strings
+      shell: bash
+      run: |
+        echo "build-output-dir=${{ github.workspace }}/build" >> "$GITHUB_OUTPUT"
+
+    - name: Install Qt
+      uses: jurplel/install-qt-action@v3
+      with:
+        version: '5.13.1'
+        dir: '${{ github.workspace }}/dependencies/'
+        cache: 'true'
+        cache-key-prefix: 'install-qt-action'
+        setup-python: 'false'
+
+    - name: Configure CMake
+      run: >
+        cmake -B ${{ steps.strings.outputs.build-output-dir }}
+        -DCMAKE_CXX_COMPILER=${{ matrix.cpp_compiler }}
+        -DCMAKE_C_COMPILER=${{ matrix.c_compiler }}
+        -DCMAKE_BUILD_TYPE=${{ matrix.build_type }}
+        -S ${{ github.workspace }}
+
+    - name: Build
+      run: cmake --build ${{ steps.strings.outputs.build-output-dir }} --config ${{ matrix.build_type }} --target pyncpp_python -j 2
+
+    - name: Archive Python build
+      uses: actions/upload-artifact@v3
+      with:
+        name: python-build
+        path: Release/python3.10
