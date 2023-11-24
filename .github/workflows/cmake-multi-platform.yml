@@ -57,9 +57,7 @@ jobs:
       uses: jurplel/install-qt-action@v3
       with:
         version: '5.13.1'
-        arch: 'win64_msvc2019_64'
         dir: '${{ github.workspace }}/dependencies/'
-        archives: 'qtbase qtsvg'
         cache: 'true'
         cache-key-prefix: 'install-qt-action'
         setup-python: 'false'
