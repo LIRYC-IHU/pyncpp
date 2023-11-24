@@ -44,7 +44,7 @@ jobs:
       shell: bash
       run: |
         echo "build-output-dir=${{ github.workspace }}/build" >> "$GITHUB_OUTPUT"
-        echo "python-output-dir=$([[ "$OSTYPE" == "mysys" ]] && echo "lib/python3.10" || echo "python310")" >> "$GITHUB_OUTPUT"
+        echo "python-output-dir=$([[ "$OSTYPE" == "mysys" ]] && echo "python3.10" || echo "lib/python3.10")" >> "$GITHUB_OUTPUT"
 
     - name: Install Qt
       uses: jurplel/install-qt-action@v3
@@ -59,8 +59,8 @@ jobs:
       uses: actions/cache@v3
       with:
         path: |
+          '${{ steps.strings.outputs.build-output-dir }}/python'
           '${{ steps.strings.outputs.python-output-dir }}'
-          python
         key: ${{ runner.OS }}-python-cache-${{ hashFiles('python/*') }}
         restore-keys: |
           ${{ runner.OS }}-python-cache-
