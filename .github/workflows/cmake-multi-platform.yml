@@ -45,7 +45,7 @@ jobs:
       shell: bash
       run: |
         echo "build-output-dir=build" >> "$GITHUB_OUTPUT"
-        echo "python-output-subdir=${{ matrix.build_type }}/$([[ "$OSTYPE" == "msys" ]] && echo "python3.10" || echo "lib/python3.10")" >> "$GITHUB_OUTPUT"
+        echo "python-output-subdir=${{ matrix.build_type }}/$([[ "$OSTYPE" == "msys" ]] && echo "python310" || echo "lib/python3.10")" >> "$GITHUB_OUTPUT"
 
     - name: Install Qt
       uses: jurplel/install-qt-action@v3
