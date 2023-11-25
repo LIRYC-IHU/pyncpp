@@ -3,9 +3,9 @@ name: CMake on multiple platforms
 on:
   workflow_dispatch:
   push:
-    branches: [ "main" ]
+    branches: [ "win" ]
   pull_request:
-    branches: [ "main" ]
+    branches: [ "win" ]
 
 jobs:
   build:
@@ -61,13 +61,12 @@ jobs:
       with:
         path: |
           '${{ steps.strings.outputs.build-output-dir }}/python'
-          '${{ steps.strings.outputs.build-output-dir }}/${{ steps.strings.outputs.python-output-dir }}'
+          '${{ steps.strings.outputs.build-output-dir }}/${{ matrix.build_type }}/${{ steps.strings.outputs.python-output-dir }}'
         key: ${{ runner.OS }}-python-cache-${{ hashFiles('python/*') }}
         restore-keys: |
           ${{ runner.OS }}-python-cache-
 
     - name: Configure CMake
-      # Configure CMake in a 'build' subdirectory. `CMAKE_BUILD_TYPE` is only required if you are using a single-configuration generator such as make.
       run: >
         cmake -B ${{ steps.strings.outputs.build-output-dir }}
         -DCMAKE_CXX_COMPILER=${{ matrix.cpp_compiler }}
@@ -76,7 +75,6 @@ jobs:
         -S ${{ github.workspace }}
 
     - name: Build
-      # Build your program with the given configuration. Note that --config is needed because the default Windows generator is a multi-config generator (Visual Studio generator).
       run: cmake --build ${{ steps.strings.outputs.build-output-dir }} --config ${{ matrix.build_type }}
 
     # - name: Test
