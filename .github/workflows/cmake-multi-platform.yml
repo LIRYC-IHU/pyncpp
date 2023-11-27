@@ -44,8 +44,8 @@ jobs:
       id: strings
       shell: bash
       run: |
-        path-delimiter="${{ runner.os == 'Windows' && '\' || '/'}}"
-        build-output-dir="${{ github.workspace }}$(path-delimiter)build"
+        path-delimiter=\"${{ runner.os == 'Windows' && '\' || '/'}}\"
+        build-output-dir=\"${{ github.workspace }}$(path-delimiter)build\"
         echo "path-delimiter=$path-delimiter" >> "$GITHUB_OUTPUT'"
         echo "build-output-dir=$build-output-dir" >> "$GITHUB_OUTPUT'"
         echo "python-output-dir=$build-output-dir$path-delimiter${{ matrix.build_type }}$path-delimiter${{ runner.os == 'Windows' && 'python310' || 'lib/python3.10' }}" >> "$GITHUB_OUTPUT"
