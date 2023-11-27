@@ -18,6 +18,10 @@ on:
   pull_request:
     branches: [ "main" ]
 
+env:
+  BUILD_DIR: '${{ github.workspace }}/build'
+  PYTHON_OUTPUT_DIR: ${{ github.workspace }}/build/${{ inputs.input_build_type }}/lib/python3.10"
+
 jobs:
   build:
     runs-on: ${{ matrix.os }}
@@ -28,7 +32,7 @@ jobs:
 
       matrix:
         os: [ubuntu-latest, macos-latest]
-        build_type: ${{ env.INPUT_BUILD_TYPE }}
+        build_type: ${{ inputs.input_build_type }}
         c_compiler: [gcc]
         include:
           - os: ubuntu-latest
@@ -37,10 +41,6 @@ jobs:
           - os: macos-latest
             c_compiler: gcc
             cpp_compiler: gcc
-
-    env:
-      BUILD_DIR: '${{ github.workspace }}/build'
-      PYTHON_OUTPUT_DIR: ${{ github.workspace }}/build/${{ env.INPUT_BUILD_TYPE }}/lib/python3.10"
       
     steps:
     - uses: actions/checkout@v3
