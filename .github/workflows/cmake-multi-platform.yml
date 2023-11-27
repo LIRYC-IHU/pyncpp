@@ -3,10 +3,16 @@ name: CMake on multiple platforms
 on:
   workflow_dispatch:
     inputs:
-      build-type:
-        description: 'Build type (default: Release)'
+      build_type:
+        description: 'Build type'
         required: false
         default: 'Release'
+        type: choice
+        options: 
+          - Release
+          - RelWithDebInfo
+          - MinSizeRelease
+          - Debug
   push:
     branches: [ "main" ]
   pull_request:
@@ -14,7 +20,7 @@ on:
 
 env:
   BUILD_DIR: '${{ github.workspace }}/build'
-  PYTHON_OUTPUT_DIR: env.BUILD_DIR/${{ matrix.build_type }}/lib/python3.10"
+  PYTHON_OUTPUT_DIR: ${{ env.BUILD_DIR }}/${{ env.INPUT_BUILD_TYPE }}/lib/python3.10"
 
 jobs:
   build:
@@ -26,7 +32,7 @@ jobs:
 
       matrix:
         os: [ubuntu-latest, macos-latest]
-        build_type: ${{ env.build_type }}
+        build_type: ${{ env.INPUT_BUILD_TYPE }}
         c_compiler: [gcc]
         include:
           - os: ubuntu-latest
