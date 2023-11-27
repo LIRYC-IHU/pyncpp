@@ -46,8 +46,8 @@ jobs:
       env:
         build-output-dir: '${{ github.workspace }}/build'
       run: |
-        echo "build-output-dir=$build-output-dir" >> "$GITHUB_OUTPUT'"
-        echo "python-output-dir=$build-output-dir/${{ matrix.build_type }}/lib/python3.10 >> "$GITHUB_OUTPUT"
+        echo "build-output-dir=$build-output-dir" >> "$GITHUB_OUTPUT"
+        echo "python-output-dir=$build-output-dir/${{ matrix.build_type }}/lib/python3.10" >> "$GITHUB_OUTPUT"
 
     - name: Install Qt
       uses: jurplel/install-qt-action@v3
