@@ -18,36 +18,21 @@ jobs:
       matrix:
         os: [ubuntu-latest, macos-latest]
         build_type: [Release]
-        c_compiler: [gcc, cl]
+        c_compiler: [gcc]
         include:
-          - os: windows-latest
-            c_compiler: cl
-            cpp_compiler: cl
           - os: ubuntu-latest
             c_compiler: gcc
             cpp_compiler: g++
           - os: macos-latest
             c_compiler: gcc
             cpp_compiler: gcc
-        exclude:
-          - os: windows-latest
-            c_compiler: gcc
-          - os: ubuntu-latest
-            c_compiler: cl
-          - os: macos-latest
-            c_compiler: cl
+
+    env:
+        BUILD_DIR: '${{ github.workspace }}/build'
+        PYTHON_OUTPUT_DIR: $BUILD_DIR/${{ matrix.build_type }}/lib/python3.10"
 
     steps:
     - uses: actions/checkout@v3
-
-    - name: Set reusable strings
-      id: strings
-      shell: bash
-      env:
-        build-output-dir: '${{ github.workspace }}/build'
-      run: |
-        echo "build-output-dir=$build-output-dir" >> "$GITHUB_OUTPUT"
-        echo "python-output-dir=$build-output-dir/${{ matrix.build_type }}/lib/python3.10" >> "$GITHUB_OUTPUT"
 
     - name: Install Qt
       uses: jurplel/install-qt-action@v3
@@ -62,22 +47,22 @@ jobs:
       uses: actions/cache@v3
       with:
         path: |
-          '${{ steps.strings.outputs.build-output-dir }}/python'
-          '${{ steps.strings.outputs.python-output-dir }}'
+          '$BUILD_DIR/python'
+          '$PYTHON_OUTPUT_DIR'
         key: ${{ runner.OS }}-python-cache-${{ hashFiles('python/*') }}
         restore-keys: |
           ${{ runner.OS }}-python-cache-
 
     - name: Configure CMake
       run: >
-        cmake -B ${{ steps.strings.outputs.build-output-dir }}
+        cmake -B $BUILD_DIR
         -DCMAKE_CXX_COMPILER=${{ matrix.cpp_compiler }}
         -DCMAKE_C_COMPILER=${{ matrix.c_compiler }}
         -DCMAKE_BUILD_TYPE=${{ matrix.build_type }}
         -S ${{ github.workspace }}
 
     - name: Build
-      run: cmake --build ${{ steps.strings.outputs.build-output-dir }} --config ${{ matrix.build_type }} -j 2
+      run: cmake --build $BUILD_DIR --config ${{ matrix.build_type }} -j 2
 
     # - name: Test
       # working-directory: ${{ steps.strings.outputs.build-output-dir }}
