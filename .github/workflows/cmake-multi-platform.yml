@@ -2,10 +2,19 @@ name: CMake on multiple platforms
 
 on:
   workflow_dispatch:
+    inputs:
+      build-type:
+        description: 'Build type (default: Release)'
+        required: false
+        default: 'Release'
   push:
     branches: [ "main" ]
   pull_request:
     branches: [ "main" ]
+
+env:
+  BUILD_DIR: '${{ github.workspace }}/build'
+  PYTHON_OUTPUT_DIR: env.BUILD_DIR/${{ matrix.build_type }}/lib/python3.10"
 
 jobs:
   build:
@@ -17,7 +26,7 @@ jobs:
 
       matrix:
         os: [ubuntu-latest, macos-latest]
-        build_type: [Release]
+        build_type: ${{ env.build_type }}
         c_compiler: [gcc]
         include:
           - os: ubuntu-latest
@@ -26,10 +35,6 @@ jobs:
           - os: macos-latest
             c_compiler: gcc
             cpp_compiler: gcc
-
-    env:
-        BUILD_DIR: '${{ github.workspace }}/build'
-        PYTHON_OUTPUT_DIR: $BUILD_DIR/${{ matrix.build_type }}/lib/python3.10"
 
     steps:
     - uses: actions/checkout@v3
@@ -47,8 +52,8 @@ jobs:
       uses: actions/cache@v3
       with:
         path: |
-          '$BUILD_DIR/python'
-          '$PYTHON_OUTPUT_DIR'
+          '${{ env.BUILD_DIR }}/python'
+          '${{ env.PYTHON_OUTPUT_DIR }}'
         key: ${{ runner.OS }}-python-cache-${{ hashFiles('python/*') }}
         restore-keys: |
           ${{ runner.OS }}-python-cache-
