@@ -3,11 +3,11 @@
 
 @PACKAGE_INIT@
 
-file(GLOB _modules "@PACKAGE_PYNCPP_MODULE_DIR@/*.cmake")
+get_property(_GENERATOR_IS_MULTI_CONFIG GLOBAL PROPERTY GENERATOR_IS_MULTI_CONFIG)
 
-foreach(_module ${_modules})
-    include(${_module})
-endforeach()
+set(_PREFIX_DIR @PACKAGE_PREFIX_DIR@)
+
+set(_CONFIG @CONFIG@)
 
 set(pyncpp_Qt5_FOUND @PYNCPP_QT5_SUPPORT@)
 
@@ -17,30 +17,78 @@ set(pyncpp_PYTHON_VERSION_PATCH @PYNCPP_PYTHON_VERSION_PATCH@)
 set(pyncpp_PYTHON_SHORT_VERSION "${pyncpp_PYTHON_VERSION_MAJOR}.${pyncpp_PYTHON_VERSION_MINOR}")
 set(pyncpp_PYTHON_VERSION "${pyncpp_PYTHON_SHORT_VERSION}.${pyncpp_PYTHON_VERSION_PATCH}")
 
+set(pyncpp_PYTHON_INSTALL_DESTINATION "@PYNCPP_PYTHON_SUBDIR@")
+
+set(pyncpp_PYTHON_DIR "${_PREFIX_DIR}/${pyncpp_PYTHON_INSTALL_DESTINATION}")
+
 if(pyncpp_FIND_REQUIRED_CPP_API)
-    include(@PACKAGE_PYNCPP_EXPORT_FILE@)
+    include("${_PREFIX_DIR}/@PYNCPP_SHARE_SUBDIR@/pyncpp_exports.cmake")
     set(pyncpp_CPP_API_LIBRARY pyncpp_cpp_api)
     set(pyncpp_CPP_API_FOUND TRUE)
 endif()
 
-set(pyncpp_PYTHON_DIR @PACKAGE_PYNCPP_PYTHON_DIR@)
-set(pyncpp_PYTHON_INSTALL_DESTINATION @PYNCPP_PYTHON_INSTALL_DESTINATION@)
-
 if(NOT TARGET pyncpp_python_executable)
-    if(UNIX)
-        pyncpp_import_python_executable_unix(pyncpp_python_executable INSTALLED @installed@)
-    else()
-        pyncpp_import_python_executable_windows(pyncpp_python_executable)
-    endif()
-    set(pyncpp_PYTHON_EXECUTABLE pyncpp_python_executable)
-endif()
+    add_executable(pyncpp_python_executable IMPORTED GLOBAL)
+    add_library(pyncpp_python_library SHARED IMPORTED GLOBAL)
 
-if(NOT TARGET pyncpp_python_library)
-    if(UNIX)
-        pyncpp_import_python_library_unix(pyncpp_python_library INSTALLED @installed@)
+    if(WIN32)
+        set(_version ${pyncpp_PYTHON_VERSION_MAJOR}${pyncpp_PYTHON_VERSION_MINOR})
     else()
-        pyncpp_import_python_library_windows(pyncpp_python_library)
+        set(_version ${pyncpp_PYTHON_SHORT_VERSION})
     endif()
+
+    set(_include_dir)
+
+    if(WIN32)
+        if(_CONFIG STREQUAL "Debug")
+            set(_debug_suffix "_d")
+        else()
+            set(_debug_suffix "")
+        endif()
+
+        set(_exec_path "pythonw${_debug_suffix}.exe")
+        set(_lib_path "python${_version}${_debug_suffix}.dll")
+        set(_devlib_path "libs/python${_version}${_debug_suffix}.lib")
+    else()
+        set(_exec_path "bin/python${_version}")
+        set(_lib_path "lib/libpython${_version}${CMAKE_SHARED_LIBRARY_SUFFIX}")
+    endif()
+
+    set(_path_root "${_PREFIX_DIR}/${pyncpp_PYTHON_INSTALL_DESTINATION}")
+
+    if(EXISTS "${_path_root}/${_exec_path}")
+        if(_GENERATOR_IS_MULTI_CONFIG)
+            string(TOUPPER ${_CONFIG} _CONFIG_UPPER)
+            set(_property_prefix _${_CONFIG_UPPER})
+            set_property(TARGET pyncpp_python_executable APPEND PROPERTY IMPORTED_CONFIGURATIONS ${_CONFIG_UPPER})
+            set_property(TARGET pyncpp_python_library APPEND PROPERTY IMPORTED_CONFIGURATIONS ${_CONFIG_UPPER})
+        else()
+            set(_property_prefix)
+        endif()
+
+        set_target_properties(pyncpp_python_executable PROPERTIES
+            IMPORTED_LOCATION${_property_prefix} "${_path_root}/${_exec_path}"
+            )
+
+        set_target_properties(pyncpp_python_library PROPERTIES
+            IMPORTED_LOCATION${_property_prefix} "${_path_root}/${_lib_path}"
+            )
+
+        if(WIN32)
+            set_target_properties(pyncpp_python_library PROPERTIES
+                IMPORTED_IMPLIB${_property_prefix} "${_path_root}/${_devlib_path}"
+                )
+            set(_include_dir "${_path_root}/include")
+        else()
+            set(_include_dir "${_path_root}/include/python@PYNCPP_PYTHON_SHORT_VERSION@")
+        endif()
+    endif()
+
+    if(_include_dir)
+        target_include_directories(pyncpp_python_library INTERFACE "${_include_dir}")
+    endif()
+
+    set(pyncpp_PYTHON_EXECUTABLE pyncpp_python_executable)
     set(pyncpp_PYTHON_LIBRARY pyncpp_python_library)
 endif()
 
