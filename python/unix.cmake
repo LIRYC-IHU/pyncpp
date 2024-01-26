@@ -162,7 +162,7 @@ if(NOT APPLE)
             string(REGEX MATCH \"SONAME *(libpython${PYNCPP_PYTHON_VERSION_MAJOR}\.${PYNCPP_PYTHON_VERSION_MINOR}\.so[0-9\.]*)\" soname_match \"\${objdump_output}\")
             if(soname_match)
                 file(INSTALL \"${PROJECT_BINARY_DIR}/${PYNCPP_PYTHON_SUBDIR}/lib/\${CMAKE_MATCH_1}\"
-                    DESTINATION \"${PYNCPP_PYTHON_SUBDIR}/lib\"
+                    DESTINATION \"\$ENV{DESTDIR}\${CMAKE_INSTALL_PREFIX}/${PYNCPP_PYTHON_SUBDIR}/lib\"
                     )
                 file(CREATE_LINK \"python${PYNCPP_PYTHON_SHORT_VERSION}/lib/\${CMAKE_MATCH_1}\"
                     \"\$ENV{DESTDIR}\${CMAKE_INSTALL_PREFIX}/lib/\${CMAKE_MATCH_1}\"
@@ -170,6 +170,7 @@ if(NOT APPLE)
                     )
             endif()
             "
+            COMPONENT Runtime
             )
     endif()
 endif()
