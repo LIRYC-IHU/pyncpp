@@ -48,7 +48,7 @@ endif()
 ################################################################################
 
 set(configure_args
-    "--prefix=<INSTALL_DIR>"
+    "--prefix=${PROJECT_BINARY_DIR}/${PYNCPP_PYTHON_SUBDIR}"
     --without-static-libpython
     --with-ensurepip
     --with-readline=editline
@@ -75,24 +75,11 @@ endif()
 # Paths
 ################################################################################
 
-if(GENERATOR_IS_MULTI_CONFIG)
-    set(python_dir)
-    set(executable_path)
-    foreach(config ${CMAKE_CONFIGURATION_TYPES})
-        string(APPEND python_dir $<$<CONFIG:${config}>:${PYNCPP_PYTHON_DIR}/${config}>)
-        string(APPEND executable_path $<$<CONFIG:${config}>:${PYNCPP_PYTHON_DIR}/${config}/bin/python${PYNCPP_PYTHON_SHORT_VERSION}>)
-        string(APPEND library_path $<$<CONFIG:${config}>:${PYNCPP_PYTHON_DIR}/${config}/lib/libpython${PYNCPP_PYTHON_SHORT_VERSION}${CMAKE_SHARED_LIBRARY_SUFFIX}>)
-    endforeach()
-else()
-    set(python_dir "${PYNCPP_PYTHON_DIR}")
-    set(executable_path "${PYNCPP_PYTHON_DIR}/bin/python${PYNCPP_PYTHON_SHORT_VERSION}")
-    set(library_path "${PYNCPP_PYTHON_DIR}/lib/libpython${PYNCPP_PYTHON_SHORT_VERSION}${CMAKE_SHARED_LIBRARY_SUFFIX}")
-endif()
+set(executable_path "${PROJECT_BINARY_DIR}/${PYNCPP_PYTHON_SUBDIR}/bin/python${PYNCPP_PYTHON_SHORT_VERSION}")
+set(library_path "${PROJECT_BINARY_DIR}/${PYNCPP_PYTHON_SUBDIR}/lib/libpython${PYNCPP_PYTHON_SHORT_VERSION}${CMAKE_SHARED_LIBRARY_SUFFIX}")
 
 if(APPLE)
     set(relative_library_path "@executable_path/../lib/libpython${PYNCPP_PYTHON_SHORT_VERSION}${CMAKE_SHARED_LIBRARY_SUFFIX}")
-else()
-    set(relative_library_path "\$ORIGIN/../lib/libpython${PYNCPP_PYTHON_SHORT_VERSION}${CMAKE_SHARED_LIBRARY_SUFFIX}")
 endif()
 
 ################################################################################
@@ -106,7 +93,6 @@ ExternalProject_Add(pyncpp_python
     BINARY_DIR "${prefix}/build"
     STAMP_DIR "${prefix}/stamp"
     TMP_DIR "${prefix}/tmp"
-    INSTALL_DIR "${python_dir}"
     URL "https://www.python.org/ftp/python/${PYNCPP_PYTHON_VERSION}/Python-${PYNCPP_PYTHON_VERSION}.tgz"
     URL_MD5 ${PYNCPP_PYTHON_UNIX_TGZ_${PYNCPP_PYTHON_VERSION_MAJOR}_${PYNCPP_PYTHON_VERSION_MINOR}_${PYNCPP_PYTHON_VERSION_PATCH}_MD5}
     CONFIGURE_COMMAND ${CMAKE_COMMAND} -E env CFLAGS=${cflags} CPPFLAGS=${cppflags} LDFLAGS=${ldflags} "<SOURCE_DIR>/configure" ${configure_args}
@@ -139,11 +125,32 @@ ExternalProject_Add_Step(pyncpp_python post_install
 # Install
 ################################################################################
 
-install(DIRECTORY "${python_dir}/"
-    DESTINATION ${PYNCPP_PYTHON_INSTALL_DESTINATION}
-    COMPONENT Python
+set(programs "${executable_path}")
+
+if(NOT APPLE)
+    list(APPEND programs "${executable_path}_bin")
+endif()
+
+install(PROGRAMS ${programs}
+    DESTINATION "${PYNCPP_PYTHON_SUBDIR}/bin"
+    COMPONENT Runtime
+    )
+
+install(FILES
+    "${library_path}"
+    DESTINATION "${PYNCPP_PYTHON_SUBDIR}/lib"
+    COMPONENT Runtime
+    )
+
+install(DIRECTORY "${PROJECT_BINARY_DIR}/${PYNCPP_PYTHON_SUBDIR}/lib/python${PYNCPP_PYTHON_SHORT_VERSION}"
+    DESTINATION "${PYNCPP_PYTHON_SUBDIR}/lib"
+    COMPONENT Runtime
     PATTERN "*.pyc" EXCLUDE
-    PATTERN "bin/*" PERMISSIONS OWNER_READ OWNER_WRITE OWNER_EXECUTE GROUP_READ GROUP_EXECUTE WORLD_READ WORLD_EXECUTE
+    )
+
+install(DIRECTORY "${PROJECT_BINARY_DIR}/${PYNCPP_PYTHON_SUBDIR}/include/"
+    DESTINATION "${PYNCPP_PYTHON_SUBDIR}/include"
+    COMPONENT Development
     )
 
 if(NOT APPLE)
@@ -154,10 +161,16 @@ if(NOT APPLE)
             execute_process(COMMAND ${CMAKE_OBJDUMP} -p \"${library_path}\" OUTPUT_VARIABLE objdump_output)
             string(REGEX MATCH \"SONAME *(libpython${PYNCPP_PYTHON_VERSION_MAJOR}\.${PYNCPP_PYTHON_VERSION_MINOR}\.so[0-9\.]*)\" soname_match \"\${objdump_output}\")
             if(soname_match)
-                set(libdir \"\$ENV{DESTDIR}\${CMAKE_INSTALL_PREFIX}/lib\")
-                file(CREATE_LINK \"python${PYNCPP_PYTHON_SHORT_VERSION}/lib/\${CMAKE_MATCH_1}\" \"\${libdir}/\${CMAKE_MATCH_1}\" SYMBOLIC)
+                file(INSTALL \"${PROJECT_BINARY_DIR}/${PYNCPP_PYTHON_SUBDIR}/lib/\${CMAKE_MATCH_1}\"
+                    DESTINATION \"\$ENV{DESTDIR}\${CMAKE_INSTALL_PREFIX}/${PYNCPP_PYTHON_SUBDIR}/lib\"
+                    )
+                file(CREATE_LINK \"python${PYNCPP_PYTHON_SHORT_VERSION}/lib/\${CMAKE_MATCH_1}\"
+                    \"\$ENV{DESTDIR}\${CMAKE_INSTALL_PREFIX}/lib/\${CMAKE_MATCH_1}\"
+                    SYMBOLIC
+                    )
             endif()
             "
+            COMPONENT Runtime
             )
     endif()
 endif()
