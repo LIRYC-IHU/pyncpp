@@ -110,9 +110,11 @@ if(APPLE)
         )
 else()
     configure_file("${CMAKE_CURRENT_SOURCE_DIR}/unix_launcher.sh.in" "${prefix}/tmp/unix_launcher.sh" @ONLY)
+    set(library_soname "libpython${PYNCPP_PYTHON_SHORT_VERSION}${CMAKE_SHARED_LIBRARY_SUFFIX}.1.0")
     list(PREPEND post_install_arguments
         COMMAND ${CMAKE_COMMAND} -E rename "${executable_path}" "${executable_path}_bin"
         COMMAND ${CMAKE_COMMAND} -E copy "${prefix}/tmp/unix_launcher.sh" "${executable_path}"
+        COMMAND ${CMAKE_COMMAND} -E create_symlink "${PROJECT_BINARY_DIR}/${PYNCPP_PYTHON_SUBDIR}/lib/${library_soname}" "${PROJECT_BINARY_DIR}/lib/${library_soname}"
         )
 endif()
 
@@ -154,23 +156,15 @@ install(DIRECTORY "${PROJECT_BINARY_DIR}/${PYNCPP_PYTHON_SUBDIR}/include/"
     )
 
 if(NOT APPLE)
-    if(NOT CMAKE_OBJDUMP)
-        message(FATAL_ERROR "The objdump utility (CMAKE_OBJDUMP) is required for pyncpp installation.")
-    else()
-        install(CODE "
-            execute_process(COMMAND ${CMAKE_OBJDUMP} -p \"${library_path}\" OUTPUT_VARIABLE objdump_output)
-            string(REGEX MATCH \"SONAME *(libpython${PYNCPP_PYTHON_VERSION_MAJOR}\.${PYNCPP_PYTHON_VERSION_MINOR}\.so[0-9\.]*)\" soname_match \"\${objdump_output}\")
-            if(soname_match)
-                file(INSTALL \"${PROJECT_BINARY_DIR}/${PYNCPP_PYTHON_SUBDIR}/lib/\${CMAKE_MATCH_1}\"
-                    DESTINATION \"\$ENV{DESTDIR}\${CMAKE_INSTALL_PREFIX}/${PYNCPP_PYTHON_SUBDIR}/lib\"
-                    )
-                file(CREATE_LINK \"python${PYNCPP_PYTHON_SHORT_VERSION}/lib/\${CMAKE_MATCH_1}\"
-                    \"\$ENV{DESTDIR}\${CMAKE_INSTALL_PREFIX}/lib/\${CMAKE_MATCH_1}\"
-                    SYMBOLIC
-                    )
-            endif()
-            "
-            COMPONENT Runtime
+    install(CODE "
+        file(INSTALL \"${PROJECT_BINARY_DIR}/${PYNCPP_PYTHON_SUBDIR}/lib/${library_soname}\"
+            DESTINATION \"\$ENV{DESTDIR}\${CMAKE_INSTALL_PREFIX}/${PYNCPP_PYTHON_SUBDIR}/lib\"
             )
-    endif()
+        file(CREATE_LINK \"python${PYNCPP_PYTHON_SHORT_VERSION}/lib/${library_soname}\"
+            \"\$ENV{DESTDIR}\${CMAKE_INSTALL_PREFIX}/lib/${library_soname}\"
+            SYMBOLIC
+            )
+        "
+        COMPONENT Runtime
+        )
 endif()
