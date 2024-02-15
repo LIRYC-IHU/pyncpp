@@ -79,6 +79,17 @@ install(DIRECTORY "${source_dir}/Lib/"
     PATTERN "*.pyc" EXCLUDE
     )
 
+install(CODE "
+    if(NOT \"\${CMAKE_INSTALL_PREFIX}\" STREQUAL \"${PROJECT_BINARY_DIR}\")
+        file(INSTALL \"${PROJECT_BINARY_DIR}/${PYNCPP_PYTHON_SUBDIR}/Lib/site-packages\"
+            DESTINATION \"\${CMAKE_INSTALL_PREFIX}/${PYNCPP_PYTHON_SUBDIR}/Lib\"
+            PATTERN \"*.pyc\" EXCLUDE
+            )
+    endif()
+    "
+    COMPONENT Runtime
+    )
+
 install(DIRECTORY "${build_dir}/"
     DESTINATION "${PYNCPP_PYTHON_SUBDIR}/DLLs"
     COMPONENT Runtime
