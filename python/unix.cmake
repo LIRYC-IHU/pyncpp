@@ -26,7 +26,7 @@ endif()
 ################################################################################
 
 if(APPLE)
-    set(default_root_dir "/usr/local/opt/openssl@1.1")
+    set(default_root_dir "/usr/local/opt/openssl")
 else()
     set(default_root_dir)
 endif()
