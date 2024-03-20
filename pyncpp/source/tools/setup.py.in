@@ -1,0 +1,25 @@
+# Copyright (c) 2024 IHU Liryc, Université de Bordeaux, Inria.
+# License: BSD-3-Clause
+
+
+from distutils.core import setup
+
+
+@PYNCPP_PYTHON_GLOBALS@
+
+
+setup_options = {
+      'name': 'pyncpp_tools',
+      'version': pyncpp_version,
+      'packages': ['pyncpp_tools'],
+      'install_requires': [],
+}
+
+
+if pyncpp_qt5_support:
+    setup_options['install_requires'] += [
+    'PySide2==@Qt5_VERSION_MAJOR@.@Qt5_VERSION_MINOR@.*'
+    ]
+
+
+setup(**setup_options)

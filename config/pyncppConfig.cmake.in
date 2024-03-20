@@ -1,4 +1,4 @@
-# Copyright (c) 2022-2023 IHU Liryc, Université de Bordeaux, Inria.
+# Copyright (c) 2022-2024 IHU Liryc, Université de Bordeaux, Inria.
 # License: BSD-3-Clause
 
 @PACKAGE_INIT@
@@ -94,3 +94,11 @@ endif()
 
 set(pyncpp_FOUND TRUE)
 check_required_components(pyncpp)
+
+if(@PYNCPP_QT5_SUPPORT@)
+    function(link_qt_libraires_to_pyside libraries_path)
+        execute_process(
+            COMMAND ${pyncpp_PYTHON_EXECUTABLE} -m pyncpp_tools link_qt_to_pyside "${libraries_path}"
+            )
+    endfunction()
+endif()

@@ -1,4 +1,4 @@
-# Copyright (c) 2022-2023 IHU Liryc, Université de Bordeaux, Inria.
+# Copyright (c) 2022-2024 IHU Liryc, Université de Bordeaux, Inria.
 # License: BSD-3-Clause
 
 cmake_minimum_required(VERSION ${CMAKE_MINIMUM_REQUIRED_VERSION})
@@ -31,8 +31,10 @@ endif()
 # Subdirectories
 ################################################################################
 
-if(PYNCPP_BUILD_CPP_API)
-    add_subdirectory(cpp_api)
+add_subdirectory(cpp_api)
+
+if(PYNCPP_INCLUDE_TOOLS)
+    add_subdirectory(tools)
 endif()
 
 ################################################################################

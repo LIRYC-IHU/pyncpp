@@ -1,4 +1,4 @@
-// Copyright (c) 2022-2023 IHU Liryc, Université de Bordeaux, Inria.
+// Copyright (c) 2022-2024 IHU Liryc, Université de Bordeaux, Inria.
 // License: BSD-3-Clause
 
 #include "manager.h"
@@ -15,6 +15,7 @@
 
 #include "error/exception_types.h"
 #include "external/cpython.h"
+#include "object.h"
 
 namespace pyncpp
 {
@@ -26,6 +27,7 @@ struct ManagerPrivate
     Manager::OutputFunction warningOutput = nullptr;
     Manager::OutputFunction errorOutput = nullptr;
     wchar_t* pythonHome;
+    Object* console;
 };
 
 Manager::Manager() :
@@ -50,6 +52,36 @@ bool Manager::isRunning()
     return d->isRunning;
 }
 
+void Manager::createConsole()
+{
+    Module toolsModule = Module::import("pyncpp_tools");
+    d->console = new Object(toolsModule.attribute("Console")());
+    d->console->callMethod("run");
+}
+
+void Manager::setConsoleVisible(bool isVisible)
+{
+    d->console->callMethod("setVisible", isVisible);
+}
+
+bool Manager::isConsoleVisible()
+{
+    return d->console->callMethod("isVisible").toCPP<bool>();
+}
+
+void Manager::setConsoleShortcut(const char* keySequence)
+{
+    d->console->callMethod("setShortcut", keySequence);
+}
+
+void Manager::deleteConsole()
+{
+#if PYNCPP_QT5_SUPPORT
+    d->console->callMethod("deleteLater");
+#endif
+    *d->console = none();
+}
+
 bool Manager::initialize(const char* pythonHome)
 {
     try
@@ -61,7 +93,7 @@ bool Manager::initialize(const char* pythonHome)
     }
     catch (std::exception& e)
     {
-        std::string message = std::string("PYNCPP initialization failed: ") + e.what();
+        std::string message = std::string("pyncpp initialization failed: ") + e.what();
         d->errorOutput(message.c_str());
     }
 
