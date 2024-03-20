@@ -24,8 +24,15 @@ public:
     void setOutputFunctions(OutputFunction info, OutputFunction warning, OutputFunction error);
 
     bool initialize(const char* pythonHome);
+    void finalize();
 
     bool isRunning();
+
+    void createConsole();
+    void setConsoleVisible(bool isVisible);
+    bool isConsoleVisible();
+    void setConsoleShortcut(const char* keySequence);
+    void deleteConsole();
 
 private:
     ManagerPrivate* const d;
@@ -34,7 +41,6 @@ private:
     void initializeInterpreter(const char* pythonHome);
     void initializeAPI();
 
-    void finalize();
     void finalizeInterpreter();
 };
 

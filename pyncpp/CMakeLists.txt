@@ -2,12 +2,6 @@
 # License: BSD-3-Clause
 
 ################################################################################
-# Settings
-################################################################################
-
-option(PYNCPP_BUILD_CPP_API "Build the C++ API provided by PYNCPP" ON)
-
-################################################################################
 # Configuration
 ################################################################################
 
@@ -22,7 +16,6 @@ set(cmake_args
     -D "PYNCPP_VERSION_MINOR:STRING=${PYNCPP_VERSION_MINOR}"
     -D "PYNCPP_VERSION_PATCH:STRING=${PYNCPP_VERSION_PATCH}"
     -D "PYNCPP_SHARE_SUBDIR:PATH=${PYNCPP_SHARE_SUBDIR}"
-    -D "PYNCPP_BUILD_CPP_API:BOOL=${PYNCPP_BUILD_CPP_API}"
     )
 
 if(PYNCPP_QT5_SUPPORT)

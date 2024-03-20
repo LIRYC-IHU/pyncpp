@@ -94,3 +94,13 @@ endif()
 
 set(pyncpp_FOUND TRUE)
 check_required_components(pyncpp)
+
+if(@PYNCPP_QT5_SUPPORT@)
+    function(setup_pyside_for_build)
+        find_package(Qt5 REQUIRED COMPONENTS Core)
+        get_target_property(qtcore_path Qt5::Core IMPORTED_LOCATION)
+        get_filename_component(qt_path ${qt_core_path} DIRECTORY)
+        message("------${qt_path}")
+        #execute_process(COMMAND ${pyncpp_PYTHON_EXECUTABLE} -m pyncpp_tools link "${qt_path}" reverse)
+    endfunction()
+endif()

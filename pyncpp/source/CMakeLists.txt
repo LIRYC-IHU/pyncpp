@@ -31,9 +31,8 @@ endif()
 # Subdirectories
 ################################################################################
 
-if(PYNCPP_BUILD_CPP_API)
-    add_subdirectory(cpp_api)
-endif()
+add_subdirectory(cpp_api)
+add_subdirectory(tools)
 
 ################################################################################
 # Install/Export
