@@ -45,6 +45,7 @@ install(PROGRAMS
 
 set(runtime_files
     "${build_dir}/${library_name}.dll"
+    "${build_dir}/python${PYNCPP_PYTHON_VERSION_MAJOR}$<$<CONFIG:Debug>:_d>.dll"
     "${build_dir}/vcruntime140.dll"
     )
 
