@@ -5,17 +5,18 @@
 
 #include <stdexcept>
 
-#if PYNCPP_QT5_SUPPORT
+#ifdef PYNCPP_QT5_SUPPORT
 #include <QApplication>
 #include <QDebug>
 #include <QDir>
+#include <QShortcut>
+#include <QWidget>
+#include <QLabel>
 #else
 #include <iostream>
 #endif
 
-#include "error/exception_types.h"
-#include "external/cpython.h"
-#include "object.h"
+#include "../pyncpp.h"
 
 namespace pyncpp
 {
@@ -26,8 +27,12 @@ struct ManagerPrivate
     Manager::OutputFunction infoOutput = nullptr;
     Manager::OutputFunction warningOutput = nullptr;
     Manager::OutputFunction errorOutput = nullptr;
-    wchar_t* pythonHome;
-    Object* console;
+    wchar_t* pythonHome = nullptr;
+    Object* console = nullptr;
+
+#ifdef PYNCPP_QT5_SUPPORT
+    QShortcut* consoleShortcut = nullptr;
+#endif
 };
 
 Manager::Manager() :
@@ -52,11 +57,17 @@ bool Manager::isRunning()
     return d->isRunning;
 }
 
-void Manager::createConsole()
+void Manager::runConsole()
 {
-    Module toolsModule = Module::import("pyncpp_tools");
-    d->console = new Object(toolsModule.attribute("Console")());
-    d->console->callMethod("run");
+    if (!d->console)
+    {
+        Module toolsModule = Module::import("pyncpp_tools");
+        d->console = new Object(toolsModule.attribute("Console")());
+        d->console->callMethod("run");
+        QWidget* console = d->console->toCPP<QWidget*>();
+        console->setWindowTitle("woohooo!!");
+        d->console->callMethod("layout").callMethod("addWidget", new QLabel("woooooooo!!!!!"));
+    }
 }
 
 void Manager::setConsoleVisible(bool isVisible)
@@ -69,17 +80,34 @@ bool Manager::isConsoleVisible()
     return d->console->callMethod("isVisible").toCPP<bool>();
 }
 
-void Manager::setConsoleShortcut(const char* keySequence)
+void Manager::setConsoleShortcut(QKeySequence keySequence, QWidget* widget)
 {
-    d->console->callMethod("setShortcut", keySequence);
+    if (!d->consoleShortcut)
+    {
+        d->consoleShortcut = new QShortcut(widget);
+        d->consoleShortcut->setContext(Qt::ApplicationShortcut);
+        widget->connect(d->consoleShortcut, &QShortcut::activated, [=] () {
+            d->console->callMethod("setVisible", (not d->console->callMethod("isVisible")));
+        });
+    }
+
+    d->consoleShortcut->setKey(keySequence);
 }
 
 void Manager::deleteConsole()
 {
-#if PYNCPP_QT5_SUPPORT
-    d->console->callMethod("deleteLater");
+    if (d->console)
+    {
+        qDebug() << "deleting console";
+#ifdef PYNCPP_QT5_SUPPORT
+        d->console->callMethod("deleteLater");
 #endif
-    *d->console = none();
+        delete d->console;
+        d->console = nullptr;
+
+        delete d->consoleShortcut;
+        d->consoleShortcut = nullptr;
+    }
 }
 
 bool Manager::initialize(const char* pythonHome)
@@ -104,7 +132,7 @@ void Manager::initializeOutputFunctions()
 {
     if (!d->infoOutput)
     {
-#if PYNCPP_QT5_SUPPORT
+#ifdef PYNCPP_QT5_SUPPORT
         d->infoOutput = [] (const char* text) { qInfo() << text; };
 #else
         d->infoOutput = [] (const char* text) { std::cout << text << std::endl; };
@@ -113,7 +141,7 @@ void Manager::initializeOutputFunctions()
 
     if (!d->warningOutput)
     {
-#if PYNCPP_QT5_SUPPORT
+#ifdef PYNCPP_QT5_SUPPORT
         d->warningOutput = [] (const char* text) { qWarning() << text; };
 #else
         d->warningOutput = [] (const char* text) { std::cout << text << std::endl; };
@@ -122,7 +150,7 @@ void Manager::initializeOutputFunctions()
 
     if (!d->errorOutput)
     {
-#if PYNCPP_QT5_SUPPORT
+#ifdef PYNCPP_QT5_SUPPORT
         d->errorOutput = [] (const char* text) { qCritical() << text; };
 #else
         d->errorOutput = [] (const char* text) { std::cerr << text << std::endl; };
@@ -156,7 +184,6 @@ void Manager::initializeAPI()
 void Manager::finalize()
 {
     finalizeInterpreter();
-    d->isRunning = false;
 }
 
 void Manager::finalizeInterpreter()

@@ -6,6 +6,11 @@
 
 #include <functional>
 
+#ifdef PYNCPP_QT5_SUPPORT
+#include <QKeySequence>
+#include <QWidget>
+#endif
+
 #include "export.h"
 
 namespace pyncpp
@@ -28,10 +33,12 @@ public:
 
     bool isRunning();
 
-    void createConsole();
+    void runConsole();
     void setConsoleVisible(bool isVisible);
     bool isConsoleVisible();
-    void setConsoleShortcut(const char* keySequence);
+#ifdef PYNCPP_QT5_SUPPORT
+    void setConsoleShortcut(QKeySequence keySequence, QWidget* widget);
+#endif
     void deleteConsole();
 
 private:

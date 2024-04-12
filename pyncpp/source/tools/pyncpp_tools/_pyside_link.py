@@ -33,19 +33,17 @@ def unlink_pyside_from_qt():
 
 
 def link_qt_to_pyside(qt_library_path):
+    unlink_pyside_from_qt()
     print(f'Linking Qt libraries in {qt_library_path} to PySide2')
     pyside_library_path = _get_pyside_library_path()
     pyside_libraries, qt_libraries = _get_libraries(pyside_library_path, qt_library_path)
 
     for pyside_library, qt_library in zip(pyside_libraries, qt_libraries):
-        if os.path.exsts(qt_library):
-            tmp_file = _temporary_file(pyside_library)
-            if os.path.exists(tmp_file):
-                os.remove(pyside_library)
-                os.rename(tmp_file, pyside_library)
+        if os.path.exists(qt_library):
             os.remove(qt_library)
-            os.symlink(pyside_library, qt_library)
-            print(f'Created link: {pyside_library} -> {qt_library}')
+            relative_pyside_library = os.path.relpath(pyside_library, os.path.dirname(qt_library))
+            os.symlink(relative_pyside_library, qt_library)
+            print(f'Created link: {qt_library} -> {relative_pyside_library}')
 
 
 def _get_pyside_library_path():

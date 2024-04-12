@@ -11,6 +11,7 @@ set(headers
     pyncpp/conversion/object.h
     pyncpp/conversion/primitive.h
     pyncpp/conversion/qlist.h
+    pyncpp/conversion/qobject.h
     pyncpp/conversion/qstring.h
     pyncpp/conversion/qvariant.h
     pyncpp/error.h
@@ -37,6 +38,7 @@ set(sources
     pyncpp/conversion/object.cpp
     pyncpp/conversion/primitive.cpp
     pyncpp/conversion/qlist.cpp
+    pyncpp/conversion/qobject.cpp
     pyncpp/conversion/qstring.cpp
     pyncpp/conversion/qvariant.cpp
     pyncpp/error/base_exception.cpp

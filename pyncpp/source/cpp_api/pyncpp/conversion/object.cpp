@@ -5,6 +5,18 @@
 
 #include "../object/object.h"
 
+bool pyncppToPython(PyObject* object, PyObject** output)
+{
+    *output = object;
+    return true;
+}
+
+bool pyncppToCPP(PyObject* nativeObject, PyObject*& output)
+{
+    output = nativeObject;
+    return true;
+}
+
 bool pyncppToPython(pyncpp::AbstractObject& object, PyObject** output)
 {
     *output = object.newReference();

@@ -4,5 +4,6 @@
 #include "conversion/object.h"
 #include "conversion/primitive.h"
 #include "conversion/qlist.h"
+#include "conversion/qobject.h"
 #include "conversion/qstring.h"
 #include "conversion/qvariant.h"

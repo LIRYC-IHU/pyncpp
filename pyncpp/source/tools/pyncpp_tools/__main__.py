@@ -6,6 +6,11 @@ import sys
 from . import *
 
 
+if pyncpp_qt5_support:
+    from ._qt_console import run_standalone as run_console
+    from ._pyside_link import link_qt_to_pyside, temporarily_link_pyside_to_qt, unlink_pyside_from_qt
+
+
 function =  sys.argv[1]
 args = sys.argv[2:]
 
@@ -15,6 +20,7 @@ functions = []
 
 if pyncpp_qt5_support:
     functions += [
+        'run_console',
         'temporarily_link_pyside_to_qt',
         'unlink_pyside_from_qt',
         'link_qt_to_pyside',

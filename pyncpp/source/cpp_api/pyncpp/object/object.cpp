@@ -11,6 +11,11 @@ struct ObjectPrivate
     PyObject* reference;
 };
 
+Object Object::create(const Object& value)
+{
+    return value;
+}
+
 Object Object::borrowed(const PyObject* reference)
 {
     if (!reference)

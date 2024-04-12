@@ -23,35 +23,10 @@ PYNCPP_EXPORT bool pyncppToPython(const char* value, PyObject** output);
 PYNCPP_EXPORT bool pyncppToPython(const std::string& value, PyObject** output);
 PYNCPP_EXPORT bool pyncppToCPP(PyObject* object, std::string& output);
 
+PYNCPP_EXPORT bool pyncppToPython(size_t value, PyObject** output);
+PYNCPP_EXPORT bool pyncppToCPP(PyObject* object, size_t& output);
+
 PYNCPP_EXPORT bool pyncppToPython(void* value, PyObject** output);
-PYNCPP_EXPORT bool pyncppToCPP(PyObject* object, void** output);
-
-template <class TYPE>
-bool pyncppToPython(TYPE* value, PyObject** output, bool transferOwnership = false)
-{
-    bool success = pyncppToPython(static_cast<void*>(value), output);
-
-    if (success && transferOwnership && PyCapsule_CheckExact(*output))
-    {
-        PyCapsule_SetDestructor(*output, [] (PyObject* object) {
-            delete (TYPE*)PyCapsule_GetPointer(object, nullptr);
-        });
-    }
-
-    return !PyErr_Occurred();
-}
-
-template <class TYPE>
-bool pyncppToCPP(PyObject* object, TYPE** output, bool transferOwnership = false)
-{
-    bool success = pyncppToCPP(object, static_cast<void**>(output));
-
-    if (success && transferOwnership && PyCapsule_CheckExact(object))
-    {
-        PyCapsule_SetDestructor(object, [] (PyObject*) {});
-    }
-
-    return !PyErr_Occurred();
-}
+PYNCPP_EXPORT bool pyncppToCPP(PyObject* object, void*& output);
 
 #endif // PYNCPP_CONVERSION_PRIMITIVE_H

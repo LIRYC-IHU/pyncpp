@@ -16,6 +16,9 @@ class Object;
 
 } // namespace pyncpp
 
+PYNCPP_EXPORT bool pyncppToPython(PyObject* object, PyObject** output);
+PYNCPP_EXPORT bool pyncppToCPP(PyObject* nativeObject, PyObject*& output);
+
 PYNCPP_EXPORT bool pyncppToPython(pyncpp::AbstractObject& object, PyObject** output);
 PYNCPP_EXPORT bool pyncppToCPP(PyObject* nativeObject, pyncpp::Object* output);
 

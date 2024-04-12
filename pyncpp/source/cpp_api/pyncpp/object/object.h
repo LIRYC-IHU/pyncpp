@@ -27,6 +27,10 @@ struct ObjectPrivate;
 class PYNCPP_EXPORT Object : public AbstractObject
 {
 public:
+    /// Wraps the same Python object as the one wrapped by 'value'.
+    ///
+    static Object create(const Object& value);
+
     /// Converts a C++ object to Python using the associated overload of the
     /// 'pyncppToPython' function.
     ///

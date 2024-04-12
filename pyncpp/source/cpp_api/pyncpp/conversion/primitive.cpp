@@ -89,6 +89,18 @@ bool pyncppToCPP(PyObject* object, std::string& output)
     return !PyErr_Occurred();
 }
 
+bool pyncppToPython(size_t value, PyObject** output)
+{
+    *output = PyLong_FromSize_t(value);
+    return *output;
+}
+
+bool pyncppToCPP(PyObject* object, size_t& output)
+{
+    output = PyLong_AsSize_t(object);
+    return !PyErr_Occurred();
+}
+
 bool pyncppToPython(void* value, PyObject** output)
 {
     if (value)
@@ -104,22 +116,22 @@ bool pyncppToPython(void* value, PyObject** output)
     return !PyErr_Occurred();
 }
 
-bool pyncppToCPP(PyObject* object, void** output)
+bool pyncppToCPP(PyObject* object, void*& output)
 {
     if (object != Py_None)
     {
         if (PyCapsule_CheckExact(object))
         {
-            *output = PyCapsule_GetPointer(object, nullptr);
+            output = PyCapsule_GetPointer(object, nullptr);
         }
         else
         {
-            *output = object;
+            output = object;
         }
     }
     else
     {
-        *output = nullptr;
+        output = nullptr;
     }
 
     return !PyErr_Occurred();
