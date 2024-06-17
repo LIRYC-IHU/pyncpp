@@ -1,0 +1,58 @@
+# Copyright (c) 2024 IHU Liryc, Université de Bordeaux, Inria.
+# License: BSD-3-Clause
+
+set(pyncpp_python_FOUND TRUE)
+set(pyncpp_PYTHON_VERSION_MAJOR @PYNCPP_PYTHON_VERSION_MAJOR@)
+set(pyncpp_PYTHON_VERSION_MINOR @PYNCPP_PYTHON_VERSION_MINOR@)
+set(pyncpp_PYTHON_VERSION_PATCH @PYNCPP_PYTHON_VERSION_PATCH@)
+set(pyncpp_PYTHON_SHORT_VERSION @PYNCPP_PYTHON_SHORT_VERSION@)
+set(pyncpp_PYTHON_VERSION @PYNCPP_PYTHON_VERSION@)
+
+set(pyncpp_PYTHON_SUBDIR "@PYNCPP_PYTHON_SUBDIR@")
+set(pyncpp_PYTHON_DIR "${pyncpp_ROOT}/${pyncpp_PYTHON_SUBDIR}")
+
+if(WIN32)
+    set(pyncpp_PYTHON_SITE_DIR "${pyncpp_PYTHON_DIR}/lib/site-packages")
+else()
+    set(pyncpp_PYTHON_SITE_DIR "${pyncpp_PYTHON_DIR}/lib/python${pyncpp_PYTHON_SHORT_VERSION}/site-packages")
+endif()
+
+if(NOT TARGET pyncpp_python_library)
+    if(WIN32)
+        set(_version ${pyncpp_PYTHON_VERSION_MAJOR}${pyncpp_PYTHON_VERSION_MINOR})
+    else()
+        set(_version ${pyncpp_PYTHON_SHORT_VERSION})
+    endif()
+
+    set(_include_dir "${pyncpp_ROOT}/${pyncpp_INCLUDE_SUBDIR}/python${_version}")
+
+    if(WIN32)
+        set(_lib_path "${pyncpp_ROOT}/${pyncpp_LIBRARY_SUBDIR}/python${_version}.dll")
+        set(_devlib_path "${pyncpp_ROOT}/${pyncpp_ARCHIVE_SUBDIR}/python${_version}.lib")
+    else()
+        set(_lib_path "${pyncpp_ROOT}/${pyncpp_LIBRARY_SUBDIR}/libpython${_version}@CMAKE_SHARED_LIBRARY_SUFFIX@")
+    endif()
+
+    if(EXISTS "${_lib_path}")
+        add_library(pyncpp_python_library SHARED IMPORTED GLOBAL)
+        set(pyncpp_PYTHON_LIBRARY pyncpp_python_library)
+
+        set_property(TARGET pyncpp_python_library APPEND PROPERTY IMPORTED_CONFIGURATIONS @CONFIG@)
+
+        set_target_properties(pyncpp_python_library PROPERTIES
+            IMPORTED_LOCATION "${_lib_path}"
+            IMPORTED_LOCATION_@CONFIG@ "${_lib_path}"
+            )
+
+        if(WIN32)
+            set_target_properties(pyncpp_python_library PROPERTIES
+                IMPORTED_IMPLIB "${_devlib_path}"
+                IMPORTED_IMPLIB_@CONFIG@ "${_devlib_path}"
+                )
+        endif()
+
+        target_include_directories(pyncpp_python_library INTERFACE ${_include_dir})
+    else()
+        set(pyncpp_FOUND FALSE)
+    endif()
+endif()
