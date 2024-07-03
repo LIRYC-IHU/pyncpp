@@ -6,13 +6,16 @@
 ################################################################################
 
 add_subdirectory(cpp_api)
-add_subdirectory(executable)
+
+if(PYNCPP_BUILD_EMBEDDABLE_PYTHON)
+    add_subdirectory(executable)
+endif()
 
 ################################################################################
 # Ensure pip installed on Windows
 ################################################################################
 
-if(WIN32)
+if(WIN32 AND PYNCPP_BUILD_EMBEDDABLE_PYTHON)
     add_custom_target(pyncpp_ensure_pip ALL
         COMMAND pyncpp_executable -m ensurepip --upgrade
         VERBATIM

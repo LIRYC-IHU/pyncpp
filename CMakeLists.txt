@@ -60,10 +60,11 @@ if(NOT GENERATOR_IS_MULTI_CONFIG AND NOT CMAKE_BUILD_TYPE)
     set(CMAKE_BUILD_TYPE Release)
 endif()
 
-if(APPLE)
-    option(PYNCPP_MACOS_BUNDLE "(macOS only) build as a bundle" ON)
-    set(PYNCPP_MACOS_BUNDLE_NAME "pyncpp" CACHE STRING "")
-endif()
+option(PYNCPP_BUILD_EMBEDDABLE_PYTHON "Build an embeddable Python interpreter" ON)
+
+set(PYNCPP_PYTHON_VERSION_MAJOR 3 CACHE STRING "Python major version")
+set(PYNCPP_PYTHON_VERSION_MINOR 10 CACHE STRING "Python minor version")
+set(PYNCPP_PYTHON_VERSION_PATCH 10 CACHE STRING "Python patch version")
 
 ################################################################################
 # Paths
@@ -73,15 +74,8 @@ set(PYNCPP_ROOT_BASE "${CMAKE_BINARY_DIR}")
 set(PYNCPP_ROOT "${PYNCPP_ROOT_BASE}/$<CONFIG>")
 
 if(UNIX)
-    if(APPLE AND PYNCPP_MACOS_BUNDLE)
-        set(contents_subdir "${PYNCPP_MACOS_BUNDLE_NAME}.app/Contents")
-        set(runtime_subdir "${contents_subdir}/MacOS")
-        set(library_subdir "${contents_subdir}/Frameworks")
-    else()
-        set(runtime_subdir "bin")
-        set(library_subdir "lib")
-    endif()
-
+    set(runtime_subdir "bin")
+    set(library_subdir "lib")
     set(archive_subdir "lib")
     set(share_subdir "share/cmake/pyncpp")
 else()
@@ -106,7 +100,10 @@ set(CMAKE_ARCHIVE_OUTPUT_DIRECTORY "${PYNCPP_ROOT}/${PYNCPP_ARCHIVE_SUBDIR}")
 # Subdirectories
 ################################################################################
 
-add_subdirectory(python)
+if(PYNCPP_BUILD_EMBEDDABLE_PYTHON)
+    add_subdirectory(python)
+endif()
+
 add_subdirectory(source)
 
 ################################################################################

@@ -61,7 +61,15 @@ add_library(pyncpp_cpp_api SHARED
     ${sources}
     )
 
-add_dependencies(pyncpp_cpp_api pyncpp_python)
+################################################################################
+# Dependencies
+################################################################################
+
+if(PYNCPP_BUILD_EMBEDDABLE_PYTHON)
+    add_dependencies(pyncpp_cpp_api pyncpp_python)
+else()
+    find_package(Python ${PYNCPP_PYTHON_VERSION_MAJOR}.${PYNCPP_PYTHON_VERSION_MINOR} COMPONENTS Interpreter Development)
+endif()
 
 ################################################################################
 # Target properties
@@ -100,10 +108,24 @@ target_compile_definitions(pyncpp_cpp_api PUBLIC
 # Includes
 ################################################################################
 
-if(WIN32)
-    set(python_subdir ${PYNCPP_PYTHON_MAJOR_VERSION}${PYNCPP_PYTHON_MINOR_VERSION})
-else()
-    set(python_subdir ${PYNCPP_PYTHON_SHORT_VERSION})
+if(PYNCPP_BUILD_EMBEDDABLE_PYTHON)
+    if(WIN32)
+        set(python_subdir ${PYNCPP_PYTHON_MAJOR_VERSION}${PYNCPP_PYTHON_MINOR_VERSION})
+    else()
+        set(python_subdir ${PYNCPP_PYTHON_SHORT_VERSION})
+    endif()
+
+    target_include_directories(pyncpp_cpp_api
+        PUBLIC
+        "$<INSTALL_INTERFACE:${PYNCPP_INCLUDE_SUBDIR}/${python_subdir}>"
+        )
+
+    foreach(python_dir ${PYNCPP_PYTHON_INCLUDE_DIRS})
+        target_include_directories(pyncpp_cpp_api
+            PUBLIC
+            "$<BUILD_INTERFACE:${python_dir}>"
+            )
+    endforeach()
 endif()
 
 target_include_directories(pyncpp_cpp_api
@@ -112,22 +134,20 @@ target_include_directories(pyncpp_cpp_api
     PUBLIC
     "$<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}>"
     "$<INSTALL_INTERFACE:${PYNCPP_INCLUDE_SUBDIR}/pyncpp>"
-    "$<INSTALL_INTERFACE:${PYNCPP_INCLUDE_SUBDIR}/${python_subdir}>"
     )
-
-foreach(python_dir ${PYNCPP_PYTHON_INCLUDE_DIRS})
-    target_include_directories(pyncpp_cpp_api
-        PUBLIC
-        "$<BUILD_INTERFACE:${python_dir}>"
-        )
-endforeach()
 
 ################################################################################
 # Link
 ################################################################################
 
+if(PYNCPP_BUILD_EMBEDDABLE_PYTHON)
+    set(python_libs ${PYNCPP_PYTHON_LINK_LIBRARIES})
+else()
+    set(python_libs Python::Python)
+endif()
+
 target_link_libraries(pyncpp_cpp_api PUBLIC
-    ${PYNCPP_PYTHON_LINK_LIBRARIES}
+    ${python_libs}
     )
 
 ################################################################################
