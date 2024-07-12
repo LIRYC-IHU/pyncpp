@@ -60,7 +60,7 @@ if(NOT GENERATOR_IS_MULTI_CONFIG AND NOT CMAKE_BUILD_TYPE)
     set(CMAKE_BUILD_TYPE Release)
 endif()
 
-option(PYNCPP_BUILD_EMBEDDABLE_PYTHON "Build an embeddable Python interpreter" ON)
+option(PYNCPP_BUILD_EMBEDDABLE_PYTHON "Build an embeddable Python interpreter" OFF)
 
 set(PYNCPP_PYTHON_VERSION_MAJOR 3 CACHE STRING "Python major version")
 set(PYNCPP_PYTHON_VERSION_MINOR 10 CACHE STRING "Python minor version")

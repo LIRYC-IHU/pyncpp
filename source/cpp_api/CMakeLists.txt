@@ -68,7 +68,7 @@ add_library(pyncpp_cpp_api SHARED
 if(PYNCPP_BUILD_EMBEDDABLE_PYTHON)
     add_dependencies(pyncpp_cpp_api pyncpp_python)
 else()
-    find_package(Python ${PYNCPP_PYTHON_VERSION_MAJOR}.${PYNCPP_PYTHON_VERSION_MINOR} COMPONENTS Interpreter Development)
+    find_package(Python ${PYNCPP_PYTHON_VERSION_MAJOR}.${PYNCPP_PYTHON_VERSION_MINOR} REQUIRED COMPONENTS Interpreter Development)
 endif()
 
 ################################################################################

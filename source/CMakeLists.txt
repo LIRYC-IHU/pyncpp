@@ -30,6 +30,8 @@ foreach(config ${CMAKE_CONFIGURATION_TYPES} ${CMAKE_BUILD_TYPE})
 
     set(share_dir ${PYNCPP_ROOT_BASE}/${config}/${PYNCPP_SHARE_SUBDIR})
 
+    file(MAKE_DIRECTORY "${share_dir}")
+
     file(COPY_FILE
         "${CMAKE_CURRENT_SOURCE_DIR}/pyncppConfig_pyncpp.cmake"
         "${share_dir}/pyncppConfig_pyncpp.cmake"
