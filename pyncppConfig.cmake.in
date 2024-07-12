@@ -1,0 +1,35 @@
+# Copyright (c) 2022-2024 IHU Liryc, Université de Bordeaux, Inria.
+# License: BSD-3-Clause
+
+@PACKAGE_INIT@
+
+set(pyncpp_FOUND TRUE)
+set(pyncpp_ROOT "${PACKAGE_PREFIX_DIR}")
+
+set(pyncpp_RUNTIME_SUBDIR "@PYNCPP_RUNTIME_SUBDIR@")
+set(pyncpp_LIBRARY_SUBDIR "@PYNCPP_LIBRARY_SUBDIR@")
+set(pyncpp_ARCHIVE_SUBDIR "@PYNCPP_ARCHIVE_SUBDIR@")
+set(pyncpp_SHARE_SUBDIR "@PYNCPP_SHARE_SUBDIR@")
+set(pyncpp_INCLUDE_SUBDIR "@PYNCPP_INCLUDE_SUBDIR@")
+set(pyncpp_UTILS_SUBDIR "@PYNCPP_UTILS_SUBDIR@")
+
+if(APPLE)
+    set(pyncpp_MACOS_BUNDLE @PYNCPP_MACOS_BUNDLE@)
+    set(pyncpp_MACOS_BUNDLE_NAME "@PYNCPP_MACOS_BUNDLE_NAME@")
+endif()
+
+set(pyncpp_FIND_REQUIRED_COMPONENTS)
+
+foreach(component ${pyncpp_FIND_COMPONENTS})
+    if(pyncpp_FIND_REQUIRED_${component})
+        list(APPEND pyncpp_FIND_REQUIRED_COMPONENTS ${component})
+    endif()
+endforeach()
+
+file(GLOB config_modules "${CMAKE_CURRENT_LIST_DIR}/pyncppConfig_*.cmake")
+
+foreach(module ${config_modules})
+    include(${module})
+endforeach()
+
+check_required_components(pyncpp)

@@ -1,4 +1,4 @@
-# Copyright (c) 2022-2023 IHU Liryc, Université de Bordeaux, Inria.
+# Copyright (c) 2022-2024 IHU Liryc, Université de Bordeaux, Inria.
 # License: BSD-3-Clause
 
 ################################################################################
@@ -48,15 +48,20 @@ endif()
 ################################################################################
 
 set(configure_args
-    "--prefix=${PROJECT_BINARY_DIR}/${PYNCPP_PYTHON_SUBDIR}"
+    "--prefix=${PYNCPP_ROOT}/${PYNCPP_PYTHON_SUBDIR}"
     --without-static-libpython
     --with-ensurepip
     --with-readline=editline
     --disable-test-modules
     --enable-shared
-    $<$<CONFIG:Release>:--enable-optimizations>
-    $<$<CONFIG:Release>:--with-lto>
     )
+
+if(PYNCPP_PYTHON_ENABLE_OPTMIZATIONS)
+    list(APPEND configure_args
+        --enable-optimizations
+        --with-lto
+        )
+endif()
 
 set(cflags ${PYNCPP_PYTHON_C_FLAGS})
 set(cppflags ${PYNCPP_PYTHON_CXX_FLAGS})
@@ -75,12 +80,12 @@ endif()
 # Paths
 ################################################################################
 
-set(executable_path "${PROJECT_BINARY_DIR}/${PYNCPP_PYTHON_SUBDIR}/bin/python${PYNCPP_PYTHON_SHORT_VERSION}")
-set(library_path "${PROJECT_BINARY_DIR}/${PYNCPP_PYTHON_SUBDIR}/lib/libpython${PYNCPP_PYTHON_SHORT_VERSION}${CMAKE_SHARED_LIBRARY_SUFFIX}")
+set(library_name libpython${PYNCPP_PYTHON_SHORT_VERSION}${CMAKE_SHARED_LIBRARY_SUFFIX})
+set(library_path "${PYNCPP_ROOT}/${PYNCPP_LIBRARY_SUBDIR}/${library_name}")
 
-if(APPLE)
-    set(relative_library_path "@executable_path/../lib/libpython${PYNCPP_PYTHON_SHORT_VERSION}${CMAKE_SHARED_LIBRARY_SUFFIX}")
-endif()
+set(PYNCPP_PYTHON_LINK_LIBRARIES "${library_path}")
+set(PYNCPP_PYTHON_INCLUDE_DIRS "${PYNCPP_ROOT}/${PYNCPP_PYTHON_SUBDIR}/include/python${PYNCPP_PYTHON_SHORT_VERSION}")
+set(PYNCPP_PYTHON_SITE_DIR "${PYNCPP_ROOT}/${PYNCPP_PYTHON_SUBDIR}/lib/python${PYNCPP_PYTHON_SHORT_VERSION}/site-packages")
 
 ################################################################################
 # External project
@@ -99,72 +104,49 @@ ExternalProject_Add(pyncpp_python
     INSTALL_COMMAND ${CMAKE_MAKE_PROGRAM} "--directory=<BINARY_DIR>" altinstall
     )
 
-set(post_install_arguments
-    COMMAND "${executable_path}" "${CMAKE_CURRENT_SOURCE_DIR}/relocatable_sysconfig.py" <INSTALL_DIR>
-    DEPENDS "${CMAKE_CURRENT_SOURCE_DIR}/relocatable_sysconfig.py"
+set(post_install_steps
+    COMMAND ${CMAKE_COMMAND} -E make_directory "${PYNCPP_ROOT}/${PYNCPP_LIBRARY_SUBDIR}"
+    COMMAND ${CMAKE_COMMAND} -E rename "${PYNCPP_ROOT}/${PYNCPP_PYTHON_SUBDIR}/lib/${library_name}" "${library_path}"
     )
 
 if(APPLE)
-    list(PREPEND post_install_arguments
-        COMMAND ${CMAKE_INSTALL_NAME_TOOL} -change "${library_path}" "${relative_library_path}" "${executable_path}"
+    list(APPEND post_install_steps
+        COMMAND ${CMAKE_INSTALL_NAME_TOOL} -id "@rpath/${library_name}" "${library_path}"
         )
 else()
-    configure_file("${CMAKE_CURRENT_SOURCE_DIR}/unix_launcher.sh.in" "${prefix}/tmp/unix_launcher.sh" @ONLY)
-    set(library_soname "libpython${PYNCPP_PYTHON_SHORT_VERSION}${CMAKE_SHARED_LIBRARY_SUFFIX}.1.0")
-    list(PREPEND post_install_arguments
-        COMMAND ${CMAKE_COMMAND} -E rename "${executable_path}" "${executable_path}_bin"
-        COMMAND ${CMAKE_COMMAND} -E copy "${prefix}/tmp/unix_launcher.sh" "${executable_path}"
-        COMMAND ${CMAKE_COMMAND} -E create_symlink "${PROJECT_BINARY_DIR}/${PYNCPP_PYTHON_SUBDIR}/lib/${library_soname}" "${PROJECT_BINARY_DIR}/lib/${library_soname}"
+    list(APPEND post_install_steps
+        COMMAND ${CMAKE_COMMAND} -E rename "${PYNCPP_ROOT}/${PYNCPP_PYTHON_SUBDIR}/lib/${library_name}.1.0" "${library_path}.1.0"
         )
 endif()
 
 ExternalProject_Add_Step(pyncpp_python post_install
     DEPENDEES install
-    ${post_install_arguments}
+    ${post_install_steps}
     )
 
 ################################################################################
 # Install
 ################################################################################
 
-set(programs "${executable_path}")
+set(library_files "${library_path}")
 
-if(NOT APPLE)
-    list(APPEND programs "${executable_path}_bin")
+if(LINUX)
+    list(APPEND library_files
+        "${library_path}.1.0"
+        )
 endif()
 
-install(PROGRAMS ${programs}
-    DESTINATION "${PYNCPP_PYTHON_SUBDIR}/bin"
+install(FILES ${library_files}
+    DESTINATION "${PYNCPP_LIBRARY_SUBDIR}"
     COMPONENT Runtime
     )
 
-install(FILES
-    "${library_path}"
-    DESTINATION "${PYNCPP_PYTHON_SUBDIR}/lib"
-    COMPONENT Runtime
-    )
-
-install(DIRECTORY "${PROJECT_BINARY_DIR}/${PYNCPP_PYTHON_SUBDIR}/lib/python${PYNCPP_PYTHON_SHORT_VERSION}"
+install(DIRECTORY "${PYNCPP_ROOT}/${PYNCPP_PYTHON_SUBDIR}/lib/python${PYNCPP_PYTHON_SHORT_VERSION}"
     DESTINATION "${PYNCPP_PYTHON_SUBDIR}/lib"
     COMPONENT Runtime
     PATTERN "*.pyc" EXCLUDE
     )
 
-install(DIRECTORY "${PROJECT_BINARY_DIR}/${PYNCPP_PYTHON_SUBDIR}/include/"
-    DESTINATION "${PYNCPP_PYTHON_SUBDIR}/include"
-    COMPONENT Development
+install(DIRECTORY "${PYNCPP_ROOT}/${PYNCPP_PYTHON_SUBDIR}/include/python${PYNCPP_PYTHON_SHORT_VERSION}"
+    DESTINATION "${PYNCPP_INCLUDE_SUBDIR}"
     )
-
-if(NOT APPLE)
-    install(CODE "
-        file(INSTALL \"${PROJECT_BINARY_DIR}/${PYNCPP_PYTHON_SUBDIR}/lib/${library_soname}\"
-            DESTINATION \"\$ENV{DESTDIR}\${CMAKE_INSTALL_PREFIX}/${PYNCPP_PYTHON_SUBDIR}/lib\"
-            )
-        file(CREATE_LINK \"python${PYNCPP_PYTHON_SHORT_VERSION}/lib/${library_soname}\"
-            \"\$ENV{DESTDIR}\${CMAKE_INSTALL_PREFIX}/lib/${library_soname}\"
-            SYMBOLIC
-            )
-        "
-        COMPONENT Runtime
-        )
-endif()

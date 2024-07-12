@@ -1,6 +1,6 @@
 BSD 3-Clause License
 
-Copyright (c) 2022-2023, IHU Liryc, Université de Bordeaux, Inria.
+Copyright (c) 2022-2024, IHU Liryc, Université de Bordeaux, Inria.
 All rights reserved.
 
 Redistribution and use in source and binary forms, with or without
