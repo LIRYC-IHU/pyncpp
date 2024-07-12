@@ -1,4 +1,4 @@
 # pyncpp
-Tools to integrate Python into C++ applications.
+Integration of Python in C++ applications.
 
-*Copyright (c) 2022-2023 IHU Liryc, Université de Bordeaux, Inria.*
+*Copyright (c) 2022-2024 IHU Liryc, Université de Bordeaux, Inria.*
