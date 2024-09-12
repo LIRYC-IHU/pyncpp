@@ -25,7 +25,7 @@ if(GIT_EXECUTABLE)
         OUTPUT_VARIABLE _git_describe
         )
 
-    if (_git_describe MATCHES "^v\\.([0-9]+)\\.([0-9]+)(-([0-9]+))?.*$")
+    if (_git_describe MATCHES "^v([0-9]+)\\.([0-9]+)(-([0-9]+))?.*$")
         set(PYNCPP_VERSION_MAJOR ${CMAKE_MATCH_1})
         set(PYNCPP_VERSION_MINOR ${CMAKE_MATCH_2})
         if(CMAKE_MATCH_4)
