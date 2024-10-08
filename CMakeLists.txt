@@ -32,12 +32,12 @@ if(GIT_EXECUTABLE)
 endif()
 
 if(_success)
-    message(STATUS "Version number generated from git: ${PYNCPP_VERSION_MAJOR}.${PYNCPP_VERSION_MINOR}.${PYNCPP_VERSION_PATCH}")
+    message(STATUS "pyncpp version number generated from git: ${PYNCPP_VERSION_MAJOR}.${PYNCPP_VERSION_MINOR}.${PYNCPP_VERSION_PATCH}")
 else()
     set(PYNCPP_VERSION_MAJOR 0)
     set(PYNCPP_VERSION_MINOR 0)
     set(PYNCPP_VERSION_PATCH 0)
-    message(WARNING "Cannot use git to generate a version number. Defaulting to 0.0.0")
+    message(WARNING "Cannot use git to generate a version number for pyncpp. Defaulting to 0.0.0")
 endif()
 
 ################################################################################
