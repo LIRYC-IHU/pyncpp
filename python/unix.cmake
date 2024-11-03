@@ -81,11 +81,10 @@ endif()
 ################################################################################
 
 set(library_name libpython${PYNCPP_PYTHON_SHORT_VERSION}${CMAKE_SHARED_LIBRARY_SUFFIX})
-set(library_path "${PYNCPP_ROOT}/${PYNCPP_LIBRARY_SUBDIR}/${library_name}")
+set(library_path "${PYNCPP_ROOT}/${CMAKE_INSTALL_LIBDIR}/${library_name}")
 
 set(PYNCPP_PYTHON_LINK_LIBRARIES "${library_path}")
 set(PYNCPP_PYTHON_INCLUDE_DIRS "${PYNCPP_ROOT}/${PYNCPP_PYTHON_SUBDIR}/include/python${PYNCPP_PYTHON_SHORT_VERSION}")
-set(PYNCPP_PYTHON_SITE_DIR "${PYNCPP_ROOT}/${PYNCPP_PYTHON_SUBDIR}/lib/python${PYNCPP_PYTHON_SHORT_VERSION}/site-packages")
 
 ################################################################################
 # External project
@@ -105,7 +104,7 @@ ExternalProject_Add(pyncpp_python
     )
 
 set(post_install_steps
-    COMMAND ${CMAKE_COMMAND} -E make_directory "${PYNCPP_ROOT}/${PYNCPP_LIBRARY_SUBDIR}"
+    COMMAND ${CMAKE_COMMAND} -E make_directory "${PYNCPP_ROOT}/${CMAKE_INSTALL_LIBDIR}"
     COMMAND ${CMAKE_COMMAND} -E rename "${PYNCPP_ROOT}/${PYNCPP_PYTHON_SUBDIR}/lib/${library_name}" "${library_path}"
     )
 
@@ -137,16 +136,17 @@ if(LINUX)
 endif()
 
 install(FILES ${library_files}
-    DESTINATION "${PYNCPP_LIBRARY_SUBDIR}"
+    TYPE LIB
     COMPONENT Runtime
     )
 
 install(DIRECTORY "${PYNCPP_ROOT}/${PYNCPP_PYTHON_SUBDIR}/lib/python${PYNCPP_PYTHON_SHORT_VERSION}"
-    DESTINATION "${PYNCPP_PYTHON_SUBDIR}/lib"
+    TYPE LIB
     COMPONENT Runtime
     PATTERN "*.pyc" EXCLUDE
     )
 
 install(DIRECTORY "${PYNCPP_ROOT}/${PYNCPP_PYTHON_SUBDIR}/include/python${PYNCPP_PYTHON_SHORT_VERSION}"
-    DESTINATION "${PYNCPP_INCLUDE_SUBDIR}"
+    TYPE INCLUDE
+    COMPONENT Development
     )

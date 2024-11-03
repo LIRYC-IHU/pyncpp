@@ -93,15 +93,19 @@ endif()
 
 if(WIN32)
     set(os_name WINDOWS)
-elseif(LINUX)
-    set(os_name LINUX)
-elseif(APPLE)
-    set(os_name MACOS)
+    set(python_home ".")
+else()
+    if(LINUX)
+        set(os_name LINUX)
+    elseif(APPLE)
+        set(os_name MACOS)
+    endif()
+    file(RELATIVE_PATH python_home "/${CMAKE_INSTALL_BINDIR}" "/")
 endif()
 
 target_compile_definitions(pyncpp_cpp_api PUBLIC
     OS_${os_name}
-    DEFAULT_PYTHON_HOME="${PYNCPP_RELATIVE_PYTHON_DIR}"
+    DEFAULT_PYTHON_HOME="${python_home}"
     )
 
 ################################################################################
@@ -110,14 +114,14 @@ target_compile_definitions(pyncpp_cpp_api PUBLIC
 
 if(PYNCPP_BUILD_EMBEDDABLE_PYTHON)
     if(WIN32)
-        set(python_subdir ${PYNCPP_PYTHON_MAJOR_VERSION}${PYNCPP_PYTHON_MINOR_VERSION})
+        set(python_subdir python${PYNCPP_PYTHON_VERSION_MAJOR}${PYNCPP_PYTHON_VERSION_MINOR})
     else()
-        set(python_subdir ${PYNCPP_PYTHON_SHORT_VERSION})
+        set(python_subdir python${PYNCPP_PYTHON_SHORT_VERSION})
     endif()
 
     target_include_directories(pyncpp_cpp_api
         PUBLIC
-        "$<INSTALL_INTERFACE:${PYNCPP_INCLUDE_SUBDIR}/${python_subdir}>"
+        "$<INSTALL_INTERFACE:${CMAKE_INSTALL_INCLUDEDIR}/${python_subdir}>"
         )
 
     foreach(python_dir ${PYNCPP_PYTHON_INCLUDE_DIRS})
@@ -130,10 +134,10 @@ endif()
 
 target_include_directories(pyncpp_cpp_api
     PRIVATE
-    "$<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}>/pyncpp"
+    "$<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/pyncpp>"
     PUBLIC
     "$<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}>"
-    "$<INSTALL_INTERFACE:${PYNCPP_INCLUDE_SUBDIR}/pyncpp>"
+    "$<INSTALL_INTERFACE:${CMAKE_INSTALL_INCLUDEDIR}/pyncpp>"
     )
 
 ################################################################################
@@ -141,14 +145,15 @@ target_include_directories(pyncpp_cpp_api
 ################################################################################
 
 if(PYNCPP_BUILD_EMBEDDABLE_PYTHON)
-    set(python_libs ${PYNCPP_PYTHON_LINK_LIBRARIES})
+    target_link_libraries(pyncpp_cpp_api PUBLIC
+        "$<BUILD_INTERFACE:${PYNCPP_PYTHON_LINK_LIBRARIES}>"
+        "$<INSTALL_INTERFACE:pyncpp_python_library>"
+        )
 else()
-    set(python_libs Python::Python)
+    target_link_libraries(pyncpp_cpp_api PUBLIC
+        Python::Python
+        )
 endif()
-
-target_link_libraries(pyncpp_cpp_api PUBLIC
-    ${python_libs}
-    )
 
 ################################################################################
 # Install/Export
@@ -158,19 +163,21 @@ install(TARGETS pyncpp_cpp_api
     EXPORT pyncpp_export_cpp_api
 
     RUNTIME
-    DESTINATION "${PYNCPP_RUNTIME_SUBDIR}"
+    DESTINATION "${CMAKE_INSTALL_BINDIR}"
     COMPONENT Runtime
 
     LIBRARY
-    DESTINATION "${PYNCPP_LIBRARY_SUBDIR}"
+    DESTINATION "${CMAKE_INSTALL_LIBDIR}"
     COMPONENT Runtime
 
     ARCHIVE
-    DESTINATION "${PYNCPP_ARCHIVE_SUBDIR}"
+    DESTINATION "${CMAKE_INSTALL_LIBDIR}"
+    COMPONENT Development
     )
 
 install(EXPORT pyncpp_export_cpp_api
     DESTINATION "${PYNCPP_SHARE_SUBDIR}"
+    COMPONENT Development
     )
 
 foreach(config ${CMAKE_CONFIGURATION_TYPES} ${CMAKE_BUILD_TYPE})
@@ -180,7 +187,8 @@ foreach(config ${CMAKE_CONFIGURATION_TYPES} ${CMAKE_BUILD_TYPE})
 endforeach()
 
 install(DIRECTORY "${CMAKE_CURRENT_SOURCE_DIR}/"
-    DESTINATION "${PYNCPP_INCLUDE_SUBDIR}/pyncpp"
+    DESTINATION "${CMAKE_INSTALL_INCLUDEDIR}/pyncpp"
+    COMPONENT Development
     FILES_MATCHING
     PATTERN "*.h"
     PATTERN "CMakeLists.txt" EXCLUDE

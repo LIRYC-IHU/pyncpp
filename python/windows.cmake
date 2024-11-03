@@ -8,11 +8,9 @@
 set(python_source_dir "${prefix}/source")
 set(python_build_dir "${python_source_dir}/PCBuild/amd64")
 set(python_name "python${PYNCPP_PYTHON_VERSION_MAJOR}${PYNCPP_PYTHON_VERSION_MINOR}")
-file(RELATIVE_PATH relative_python_home "/${PYNCPP_LIBRARY_SUBDIR}" "/${PYNCPP_PYTHON_SUBDIR}")
 
-set(PYNCPP_PYTHON_LINK_LIBRARIES "${PYNCPP_ROOT}/${PYNCPP_ARCHIVE_SUBDIR}/${python_name}.lib")
-set(PYNCPP_PYTHON_INCLUDE_DIRS "${PYNCPP_ROOT}/${PYNCPP_INCLUDE_SUBDIR}/${python_name}")
-set(PYNCPP_PYTHON_SITE_DIR "${PYNCPP_ROOT}/${PYNCPP_PYTHON_SUBDIR}/lib/site-packages")
+set(PYNCPP_PYTHON_LINK_LIBRARIES "${PYNCPP_ROOT}/${CMAKE_INSTALL_BINDIR}/${python_name}.lib")
+set(PYNCPP_PYTHON_INCLUDE_DIRS "${PYNCPP_ROOT}/${CMAKE_INSTALL_INCLUDEDIR}/${python_name}")
 
 ################################################################################
 # External project
@@ -39,22 +37,23 @@ ExternalProject_Add(pyncpp_python
 # Install
 ################################################################################
 
-set(runtime_files
+set(runtime_libraries
     "${python_build_dir}/${python_name}.dll"
     "${python_build_dir}/python${PYNCPP_PYTHON_VERSION_MAJOR}.dll"
     "${python_build_dir}/vcruntime140.dll"
     )
 
-install(FILES ${runtime_files}
-    DESTINATION "${PYNCPP_LIBRARY_SUBDIR}"
+install(FILES ${runtime_libraries}
+    DESTINATION "${CMAKE_INSTALL_LIBDIR}"
     COMPONENT Runtime
     )
 
 install(CODE "
-    file(WRITE \"\${CMAKE_INSTALL_PREFIX}/${PYNCPP_LIBRARY_SUBDIR}/${python_name}._pth\"
-        \"${relative_python_home}\\n\"
-        \"${relative_python_home}/Lib\\n\"
-        \"${relative_python_home}/DLLs\\n\"
+    file(WRITE \"\${CMAKE_INSTALL_PREFIX}/${CMAKE_INSTALL_BINDIR}/${python_name}._pth\"
+        \".\\n\"
+        \"${PYNCPP_PYTHON_SUBDIR}\\n\"
+        \"${PYNCPP_PYTHON_SUBDIR}/lib-dynload\\n\"
+        \"DLLs\\n\"
         \"import site\"
         )
     "
@@ -62,24 +61,13 @@ install(CODE "
     )
 
 install(DIRECTORY "${python_source_dir}/Lib/"
-    DESTINATION "${PYNCPP_PYTHON_SUBDIR}/Lib"
+    DESTINATION "${CMAKE_INSTALL_BINDIR}/${PYNCPP_PYTHON_SUBDIR}"
     COMPONENT Runtime
     PATTERN "*.pyc" EXCLUDE
     )
 
-install(CODE "
-    if(EXISTS \"${PYNCPP_ROOT}/${PYNCPP_LIBRARY_SUBDIR}/Lib\")
-        file(INSTALL \"${PYNCPP_ROOT}/${PYNCPP_LIBRARY_SUBDIR}/Lib\"
-            DESTINATION \"\${CMAKE_INSTALL_PREFIX}/${PYNCPP_LIBRARY_SUBDIR}\"
-            PATTERN \"*.pyc\" EXCLUDE
-            )
-    endif()
-    "
-    COMPONENT Runtime
-    )
-
 install(DIRECTORY "${python_build_dir}/"
-    DESTINATION "${PYNCPP_PYTHON_SUBDIR}/DLLs"
+    DESTINATION "${CMAKE_INSTALL_BINDIR}/${PYNCPP_PYTHON_SUBDIR}/lib-dynload"
     COMPONENT Runtime
     FILES_MATCHING
     PATTERN "*.dll"
@@ -89,16 +77,19 @@ install(DIRECTORY "${python_build_dir}/"
     )
 
 install(DIRECTORY "${python_build_dir}/"
-    DESTINATION "${PYNCPP_ARCHIVE_SUBDIR}"
+    DESTINATION "${CMAKE_INSTALL_LIBDIR}"
+    COMPONENT Development
     FILES_MATCHING
     PATTERN "python*.lib"
     PATTERN "python*.exp"
     )
 
 install(DIRECTORY "${python_source_dir}/Include/"
-    DESTINATION "${PYNCPP_INCLUDE_SUBDIR}/python${PYNCPP_PYTHON_VERSION_MAJOR}${PYNCPP_PYTHON_VERSION_MINOR}"
+    DESTINATION "${CMAKE_INSTALL_INCLUDEDIR}/${python_name}"
+    COMPONENT Development
     )
 
 install(FILES "${python_source_dir}/PC/pyconfig.h"
-    DESTINATION "${PYNCPP_INCLUDE_SUBDIR}/python${PYNCPP_PYTHON_VERSION_MAJOR}${PYNCPP_PYTHON_VERSION_MINOR}"
+    DESTINATION "${CMAKE_INSTALL_INCLUDEDIR}/${python_name}"
+    COMPONENT Development
     )
