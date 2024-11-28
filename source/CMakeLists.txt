@@ -12,17 +12,6 @@ if(PYNCPP_BUILD_EMBEDDABLE_PYTHON)
 endif()
 
 ################################################################################
-# Ensure pip installed on Windows
-################################################################################
-
-if(WIN32 AND PYNCPP_BUILD_EMBEDDABLE_PYTHON)
-    add_custom_target(pyncpp_ensure_pip ALL
-        COMMAND pyncpp_executable -m ensurepip --upgrade
-        VERBATIM
-        )
-endif()
-
-################################################################################
 # Config module
 ################################################################################
 

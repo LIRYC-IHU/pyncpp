@@ -28,7 +28,7 @@ add_executable(pyncpp_executable
 ################################################################################
 
 if(UNIX)
-    file(RELATIVE_PATH relative_lib_dir "/${PYNCPP_UTILS_SUBDIR}" "/${PYNCPP_LIBRARY_SUBDIR}")
+    file(RELATIVE_PATH relative_lib_dir "/${CMAKE_INSTALL_BINDIR}" "/${CMAKE_INSTALL_LIBDIR}")
 
     if(APPLE)
         set(rpath "@executable_path/${relative_lib_dir}")
@@ -43,17 +43,20 @@ endif()
 
 set_target_properties(pyncpp_executable PROPERTIES
     OUTPUT_NAME ${executable_name}
-    RUNTIME_OUTPUT_DIRECTORY "${PYNCPP_ROOT}/${PYNCPP_UTILS_SUBDIR}"
     )
 
 ################################################################################
 # Compile definitions
 ################################################################################
 
-file(RELATIVE_PATH relative_python_dir "/${PYNCPP_UTILS_SUBDIR}" "/${PYNCPP_PYTHON_SUBDIR}")
+if(WIN32)
+    set(python_home ".")
+else()
+    file(RELATIVE_PATH python_home "/${CMAKE_INSTALL_BINDIR}" "/")
+endif()
 
 target_compile_definitions(pyncpp_executable PUBLIC
-    PYTHON_HOME="${relative_python_dir}"
+    PYTHON_HOME="${python_home}"
     )
 
 ################################################################################
@@ -72,7 +75,8 @@ install(TARGETS pyncpp_executable
     EXPORT pyncpp_export_executable
 
     RUNTIME
-    DESTINATION "${PYNCPP_UTILS_SUBDIR}"
+    DESTINATION "${CMAKE_INSTALL_BINDIR}"
+    COMPONENT Runtime
     )
 
 install(EXPORT pyncpp_export_executable
