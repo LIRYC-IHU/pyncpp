@@ -7,7 +7,7 @@ get_property(_GENERATOR_IS_MULTI_CONFIG GLOBAL PROPERTY GENERATOR_IS_MULTI_CONFI
 
 set(_PREFIX_DIR @PACKAGE_PREFIX_DIR@)
 
-set(_CONFIG @CONFIG@)
+set(_CONFIGS @CONFIGS@)
 
 set(pyncpp_Qt5_FOUND @PYNCPP_QT5_SUPPORT@)
 
@@ -39,24 +39,9 @@ if(NOT TARGET pyncpp_python_executable)
 
     set(_include_dir)
 
-    if(WIN32)
-        if(_CONFIG STREQUAL "Debug")
-            set(_debug_suffix "_d")
-        else()
-            set(_debug_suffix "")
-        endif()
-
-        set(_exec_path "pythonw${_debug_suffix}.exe")
-        set(_lib_path "python${_version}${_debug_suffix}.dll")
-        set(_devlib_path "libs/python${_version}${_debug_suffix}.lib")
-    else()
-        set(_exec_path "bin/python${_version}")
-        set(_lib_path "lib/libpython${_version}${CMAKE_SHARED_LIBRARY_SUFFIX}")
-    endif()
-
     set(_path_root "${_PREFIX_DIR}/${pyncpp_PYTHON_INSTALL_DESTINATION}")
 
-    if(EXISTS "${_path_root}/${_exec_path}")
+    foreach(_CONFIG ${_CONFIGS})
         if(_GENERATOR_IS_MULTI_CONFIG)
             string(TOUPPER ${_CONFIG} _CONFIG_UPPER)
             set(_property_prefix _${_CONFIG_UPPER})
@@ -64,6 +49,20 @@ if(NOT TARGET pyncpp_python_executable)
             set_property(TARGET pyncpp_python_library APPEND PROPERTY IMPORTED_CONFIGURATIONS ${_CONFIG_UPPER})
         else()
             set(_property_prefix)
+        endif()
+
+        if(WIN32)
+            if(_CONFIG STREQUAL "Debug")
+                set(_debug_suffix "_d")
+            else()
+                set(_debug_suffix "")
+            endif()
+            set(_exec_path "pythonw${_debug_suffix}.exe")
+            set(_lib_path "python${_version}${_debug_suffix}.dll")
+            set(_devlib_path "libs/python${_version}${_debug_suffix}.lib")
+        else()
+            set(_exec_path "bin/python${_version}")
+            set(_lib_path "lib/libpython${_version}${CMAKE_SHARED_LIBRARY_SUFFIX}")
         endif()
 
         set_target_properties(pyncpp_python_executable PROPERTIES
@@ -78,10 +77,13 @@ if(NOT TARGET pyncpp_python_executable)
             set_target_properties(pyncpp_python_library PROPERTIES
                 IMPORTED_IMPLIB${_property_prefix} "${_path_root}/${_devlib_path}"
                 )
-            set(_include_dir "${_path_root}/include")
-        else()
-            set(_include_dir "${_path_root}/include/python@PYNCPP_PYTHON_SHORT_VERSION@")
         endif()
+    endforeach()
+
+    if(WIN32)
+        set(_include_dir "${_path_root}/include")
+    else()
+        set(_include_dir "${_path_root}/include/python@PYNCPP_PYTHON_SHORT_VERSION@")
     endif()
 
     if(_include_dir)
